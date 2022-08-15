@@ -48,10 +48,17 @@ This project is to setup and explore the functionality of OpenCV on a raspberryP
 <p align="right">(<a href="#top">back to top</a>)</p>
 </details>
 
+## Folder Structure
+  * Resources - Support resources for repo (images, etc)
+  * Setup - Raspberry Pi and OpenCV installation
+  
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Resources
 <a href="https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html"> OpenCV Python Tutorial</a>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- LICENSE -->
 ## License

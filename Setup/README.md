@@ -31,7 +31,8 @@
   - OpenCV script from [article](("https://qengineering.eu/install-opencv-4.5-on-raspberry-pi-4.html") works well. Includes qt on install.
   - OpenCV install takes about 1.5 hrs on a pi4
   - Legacy camera mode is being deprecated in raspbian. 
-  - Webcam does not work with 'raspistill' image capture
+  - Webcam does not work with `raspistill` image capture
+    - Webcam test `fswebcam -r 1920x1080 --no-banner /path/to/output/file.jpg`
 
 
 

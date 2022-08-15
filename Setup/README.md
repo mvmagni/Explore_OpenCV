@@ -14,8 +14,8 @@
 <!-- ABOUT THE PROJECT -->
 ## Raspberry Pi Setup
 
-  - Using a Raspberry Pi 4/4GB<br />
-  - OpenCV 4.5
+  - Raspberry Pi 4/4GB<br />
+  - OpenCV 4.5.5
   - Webcam (not a pi camera)    
  
 ## Resources

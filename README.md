@@ -40,7 +40,7 @@ This project is to setup and explore the functionality of OpenCV on a raspberryP
 - [ ] Emotion recognition
 - [ ] Interactive interface
 - [ ] Inclusion of NLP support and online data mining via <a href="github.com/mvmagni/magritte"> github.com/mvmagni/magritte </a>
-- [ ] Home automation integration (speech to text
+- [ ] Home automation integration (speech to text with call to IOT API's)
 
 
 </p>  

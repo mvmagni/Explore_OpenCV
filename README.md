@@ -34,12 +34,13 @@
 This project is to setup and explore the functionality of OpenCV on a raspberryPi. Design goals are to explore functionality to create a visual interface as an assistive interface for those with ASD.  
 
 ### Supportive features include:
-- [ ] Facial recognition
-- [ ] Object recognition
+- [ ] Facial recognition (name and TTS)
+- [ ] Object recognition (name and TTS)
 - [ ] Audible prompts for assistance on text displays
 - [ ] Emotion recognition
 - [ ] Interactive interface
 - [ ] Inclusion of NLP support and online data mining via <a href="github.com/mvmagni/magritte"> github.com/mvmagni/magritte </a>
+- [ ] Home automation integration (speech to text
 
 
 </p>  

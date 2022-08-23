@@ -22,6 +22,7 @@
 [RaspberryPi Imager]("https://www.raspberrypi.com/software/")<br />
 [Install OpenCV]("https://qengineering.eu/install-opencv-4.5-on-raspberry-pi-4.html")<br />
 [Webcam]("https://raspberrypi-guide.github.io/electronics/using-usb-webcams")
+[VSCode]("https://code.visualstudio.com/docs/setup/raspberry-pi")
 
 
 ## Notes

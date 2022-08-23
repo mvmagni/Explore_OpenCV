@@ -1,7 +1,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/mvmagni/magritte">
-    <img src="../resources/HUD.jpg" alt="Logo" width="300" height="300"/>
+    <img src="../resources/HUD.jpg" alt="Logo" width="500" height="300"/>
   </a>
     <p>
     <h2 align="center">OpenCV Exploration</h2>
@@ -21,7 +21,7 @@
 ## Resources
 [RaspberryPi Imager]("https://www.raspberrypi.com/software/")<br />
 [Install OpenCV]("https://qengineering.eu/install-opencv-4.5-on-raspberry-pi-4.html")<br />
-[Webcam]("https://raspberrypi-guide.github.io/electronics/using-usb-webcams")
+[Webcam]("https://raspberrypi-guide.github.io/electronics/using-usb-webcams")<br />
 [VSCode]("https://code.visualstudio.com/docs/setup/raspberry-pi")
 
 
@@ -34,6 +34,7 @@
   - Legacy camera mode is being deprecated in raspbian. 
   - Webcam does not work with `raspistill` image capture
     - Webcam test `fswebcam -r 1920x1080 --no-banner /path/to/output/file.jpg`
+  - Kill background on Pi for better remote, especially across multiple monitors
 
 
 

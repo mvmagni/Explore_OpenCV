@@ -18,7 +18,7 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/mvmagni/magritte">
-    <img src="resources/HUD.jpg" alt="Logo" width="300" height="300"/>
+    <img src="resources/HUD.jpg" alt="Logo" width="600" height="300"/>
   </a>
     <p>
     <h2 align="center">OpenCV Exploration</h2>

@@ -19,10 +19,11 @@
   - Webcam (not a pi camera)    
  
 ## Resources
-[RaspberryPi Imager]("https://www.raspberrypi.com/software/")<br />
-[Install OpenCV]("https://qengineering.eu/install-opencv-4.5-on-raspberry-pi-4.html")<br />
-[Webcam]("https://raspberrypi-guide.github.io/electronics/using-usb-webcams")<br />
-[VSCode]("https://code.visualstudio.com/docs/setup/raspberry-pi")
+<a href="https://www.raspberrypi.com/software/"> RaspberryPi Imager</a><br />
+<a href="https://qengineering.eu/install-opencv-4.5-on-raspberry-pi-4.html">OpenCV on RaspberryPi</a><br />
+<a href="https://raspberrypi-guide.github.io/electronics/using-usb-webcams">Webcam on pi (not pi camera)</a><br />
+<a href="https://code.visualstudio.com/docs/setup/raspberry-pi"> VSCode on RaspberryPi </a><br />
+<a href="https://fedoramagazine.org/use-opencv-on-fedora-linux-part-1/">OpenCV on Fedora</a><br />
 
 
 ## Notes

@@ -1,6 +1,8 @@
 import cv2 as cv
 
-cam = cv.VideoCapture(0)
+print(f'Initializing camera...', end='')
+cam = cv.VideoCapture(0,cv.CAP_DSHOW)
+print(f'complete')
 
 cv.namedWindow("test")
 

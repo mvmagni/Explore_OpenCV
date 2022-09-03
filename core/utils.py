@@ -1,10 +1,12 @@
 import cv2 as cv
 import numpy as np
 from datetime import datetime
+import time
+from PIL import Image
+from statistics import mean
 
-
-CONFIDENCE_THRESHOLD=0.5
-NMS_THRESHOLD=0.3 #lower it is the more aggressive and the less overlapping boxes per object
+CONFIDENCE_THRESHOLD=0.6
+NMS_THRESHOLD=0.2 #lower it is the more aggressive and the less overlapping boxes per object
 
 def get_classNames(classFile):
     # Coco info
@@ -18,14 +20,18 @@ def get_classNames(classFile):
 def write_progress_image(img, directory, frame_count, extension='jpg', date_format='%Y-%m-%d_%H-%M-%S'):
     fileName = f"{directory}/{datetime.today().strftime(f'{date_format}_f{frame_count}.{extension}')}"
     cv.imwrite(filename=fileName, img=img)
-
-def show_fps():
-    prev_frame_time = 0
-    # used to record the time at which we processed current frame
-    new_frame_time = 0
- 
+    
+    image_show = Image.open(fileName)
+    image_show.show()
+    
+def show_fps(img, prev_frame_time, fps_queue=None):
+    queue_length=90
+    
+    if fps_queue is None:
+        fps_queue = []
+    
     # font which we will be using to display FPS
-    font = cv2.FONT_HERSHEY_SIMPLEX
+    font = cv.FONT_HERSHEY_SIMPLEX
     # time when we finish processing for this frame
     new_frame_time = time.time()
  
@@ -40,16 +46,19 @@ def show_fps():
     # converting the fps into integer
     fps = int(fps)
  
-    # converting the fps to string so that we can display it on frame
-    # by using putText function
-    fps = str(fps)
+    # add fps
+    fps_queue.append(fps)
+    # Remove anything above desired queue/avg length
+    while len(fps_queue) > queue_length:
+        fps_queue.pop(0)
  
     # putting the FPS count on the frame
-    cv2.putText(gray, fps, (7, 70), font, 3, (100, 255, 0), 3, cv2.LINE_AA)
+    cv.putText(img, str(int(mean((fps_queue)))), (15, 50), font, 1.5, (100, 255, 0), 2, cv.LINE_AA)
+    return new_frame_time, fps_queue
  
     
 
-def findObjects(outputs, img, classNames):
+def findObjects(outputs, img, classNames, show_labels=True):
     hT, wT, cT = img.shape
     bbox = []
     classIDs = []
@@ -78,7 +87,14 @@ def findObjects(outputs, img, classNames):
     for i in indices:
         box = bbox[i]
         x,y,w,h = box[0], box[1], box[2], box[3]
-        cv.rectangle(img,(x,y), (x+w,y+h), (255,0,255),2)
-        cv.putText(img,f'{classNames[classIDs[i]].upper()} {int(confidence[i]*100)}%',
-                (x,y-10), cv.FONT_HERSHEY_SIMPLEX, 0.6,(255,0,255),2
-                   )
+        if classIDs[i] == 0: # person
+            colour = (255,51,153) # colour=
+        elif classIDs[i] == 2: # car
+            colour = (255,153,51) # colour=cyan
+        else: 
+            colour = (0,204,204) # colour=yellow
+        cv.rectangle(img,(x,y), (x+w,y+h), colour,2)
+        
+        if show_labels:
+            cv.putText(img,f'{classNames[classIDs[i]].title()} {int(confidence[i]*100)}%',
+                    (x,y-5), cv.FONT_HERSHEY_SIMPLEX, 0.6,colour,2)

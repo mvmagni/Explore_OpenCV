@@ -13,6 +13,12 @@ PROJECT_ROOT_DIR = f'{os.getcwd()}/Explore_OpenCV'
 IMAGE_STORE_DIR = f'd:/OBS_Recordings'
 SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
 
+#Configs for changing video while running
+SHOW_FPS=False
+SHOW_DETECT=False
+SHOW_DETECT_LABELS=True
+
+
 ###############################################################################
 # Get coco info
 classNames = utils.get_classNames(f'{PROJECT_ROOT_DIR}/net_configs/coco.names')
@@ -35,9 +41,9 @@ net, outputNames = yc.get_net_config(modelConfiguration, modelWeights)
 # Config video capture. 0 is first
 # Added cv.CAP_DSHOW to avoid several minute lag of opening cam on windows
 # No lag opening on Linux
-cap = cv.VideoCapture(0,cv.CAP_DSHOW)
-#cap = cv.VideoCapture(SAMPLE_VIDEO)
-
+#cap = cv.VideoCapture(0,cv.CAP_DSHOW)
+cap = cv.VideoCapture(SAMPLE_VIDEO)
+fps = cap.get(cv.CAP_PROP_FPS)
 cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
 ################################################################################
@@ -48,6 +54,8 @@ cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
 whT = 320
 hhT = 320
 
+fps_queue=None
+prev_frame_time = 0
 frame_counter = 0
 while True:
     frame_counter += 1
@@ -56,22 +64,16 @@ while True:
     if frame_counter == 1:
         print(f'Image size: {frame.shape}')
 
-    # Only process every second frame through the net
-    #if frame_counter % 1 == 0:
-    # Convert the frame to a blob for passing to the model
-    blob = cv.dnn.blobFromImage(frame, 1/255, (whT,whT),[0,0,0],1,crop=False)
-    net.setInput(blob)
-    outputs = net.forward(outputNames)
-    # print(outputs[0].shape) #300, 85 : 300 is bounding boxes
-    # print(outputs[1].shape) #1200, 85 : 1200 is bounding boxes
-    # print(outputs[2].shape) #4800, 85 : 4800 is bounding boxes
-    # print(outputs[0][0])
-    #Breakdown of 85
-    # 1-4 are center x, centery, width, height
-    # 5 is confidence there is something in the bounding box
-    # other 80 represent prob of the 80 original coco classes
-    
-    utils.findObjects(outputs,frame,classNames)
+    if SHOW_DETECT:
+        blob = cv.dnn.blobFromImage(frame, 1/255, (whT,whT),[0,0,0],1,crop=False)
+        net.setInput(blob)
+        outputs = net.forward(outputNames)
+            
+        utils.findObjects(outputs,frame,classNames, show_labels=SHOW_DETECT_LABELS)
+
+    if SHOW_FPS:
+        
+        prev_frame_time, fps_queue = utils.show_fps(frame, prev_frame_time, fps_queue)
  
     # Show the image
     cv.imshow('OpenCV Test',frame)
@@ -82,6 +84,12 @@ while True:
         # ESC pressed
         print("Escape hit, closing...")
         break
+    elif k%256 == 102: #small f
+        SHOW_FPS = not SHOW_FPS
+    elif k%256 == 100: #small d
+        SHOW_DETECT = not SHOW_DETECT
+    elif k%256 == 108: # small l (letter L)
+        SHOW_DETECT_LABELS = not SHOW_DETECT_LABELS
     elif k%256 == 32:
         # SPACE pressed
         utils.write_progress_image(img=frame,

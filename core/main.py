@@ -32,7 +32,7 @@ if classNames is None:
 # Setup the NN parameters
 # Setup the basics for darknet in CV
 # Load in model config and weights
-CONFIG_TYPE=1
+CONFIG_TYPE=6
 
 if CONFIG_TYPE == 1:
     # Default target for width and height in YOLO network
@@ -69,8 +69,8 @@ elif CONFIG_TYPE == 4:
 elif CONFIG_TYPE == 5:
     # Default target for width and height in YOLO network
     # Used in cv.dnn.blobFromImage
-    whT = 416
-    hhT = 416
+    whT = 480
+    hhT = 320
     modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-416.cfg'
     modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3.weights'
 
@@ -78,12 +78,10 @@ if CONFIG_TYPE == 6:
     # Default target for width and height in YOLO network
     # Used in cv.dnn.blobFromImage
     whT = 320
-    hhT = 180
+    hhT = 192
     modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320_180.cfg'
     modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3.weights'
-
-
-
+    
 net, outputNames = yc.get_net_config(modelConfiguration, modelWeights)
 ###############################################################################
 
@@ -110,6 +108,7 @@ while True:
 
     if SHOW_DETECT:
         blob = cv.dnn.blobFromImage(frame, 1/255, (whT,hhT),[0,0,0],1,crop=False)
+        
         net.setInput(blob)
         outputs = net.forward(outputNames)
             
@@ -117,7 +116,7 @@ while True:
 
     if SHOW_FPS:
         prev_frame_time, fps_queue = utils.show_fps(frame, prev_frame_time, fps_queue)
-        
+
     # Show the image
     cv.imshow('OpenCV Test',frame)
 

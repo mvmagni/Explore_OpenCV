@@ -5,8 +5,8 @@ import time
 from PIL import Image
 from statistics import mean
 
-CONFIDENCE_THRESHOLD=0.6
-NMS_THRESHOLD=0.2 #lower it is the more aggressive and the less overlapping boxes per object
+CONFIDENCE_THRESHOLD=0.5
+NMS_THRESHOLD=0.3 #lower it is the more aggressive and the less overlapping boxes per object
 
 def get_classNames(classFile):
     # Coco info

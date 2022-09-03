@@ -2,49 +2,36 @@ import cv2 as cv
 import numpy as np
 import os
 import utils
+import yolo_config as yc
 
-print (f'OpenCV Version: {cv.__version__}')
+print(f'OpenCV Version: {cv.__version__}')
 print(f'CUDA enabled devices: {cv.cuda.getCudaEnabledDeviceCount()}')
 print(f'CWD: {os.getcwd()}')
 
 # Resource configs
-SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
-#SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/Produce_0.mp4'
-
 PROJECT_ROOT_DIR = f'{os.getcwd()}/Explore_OpenCV'
+IMAGE_STORE_DIR = f'd:/OBS_Recordings'
+SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
 
-# Load in model config and weights
-modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320.cfg'
-#modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-960.cfg'
-modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320.weights'
-
-# Coco info
+###############################################################################
+# Get coco info
 classNames = utils.get_classNames(f'{PROJECT_ROOT_DIR}/net_configs/coco.names')
 if classNames is None:
     print(f'classNames not loaded')
     exit()
+###############################################################################
 
-#######################################################################
+
+###############################################################################
 # Setup the NN parameters
 # Setup the basics for darknet in CV
-net = cv.dnn.readNetFromDarknet(modelConfiguration,modelWeights)
-net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
-net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
-#net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
-#net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
+# Load in model config and weights
+modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320.cfg'
+modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320.weights'
+net, outputNames = yc.get_net_config(modelConfiguration, modelWeights)
+###############################################################################
 
-# Need to get the names of the output layers.
-# This gives the index of the layers, not the names
-# e.g. value of 200 is 199 (because 0 is a valid layer)
-layerNames = net.getLayerNames()
-print(layerNames)
-print(f'layerNames length: {len(layerNames)}, type: {type(layerNames)}')
-print(net.getUnconnectedOutLayers())
-
-outputNames = [layerNames[i-1] for i in net.getUnconnectedOutLayers()]
-print(outputNames) #(gives output names of the layers)
-########################################################################
-
+###############################################################################
 # Config video capture. 0 is first
 # Added cv.CAP_DSHOW to avoid several minute lag of opening cam on windows
 # No lag opening on Linux
@@ -53,22 +40,21 @@ cap = cv.VideoCapture(0,cv.CAP_DSHOW)
 
 cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
+################################################################################
+
 
 # Default target for width and height in YOLO network
+# Used in cv.dnn.blobFromImage
 whT = 320
 hhT = 320
 
-img_counter = 0
 frame_counter = 0
 while True:
     frame_counter += 1
     success, frame = cap.read()
-    #print(frame.shape)
-
 
     if frame_counter == 1:
         print(f'Image size: {frame.shape}')
-
 
     # Only process every second frame through the net
     #if frame_counter % 1 == 0:
@@ -98,10 +84,9 @@ while True:
         break
     elif k%256 == 32:
         # SPACE pressed
-        img_name = "opencv_frame_{}.png".format(img_counter)
-        cv.imwrite(img_name, frame)
-        print("{} written!".format(img_name))
-        img_counter += 1
+        utils.write_progress_image(img=frame,
+                                   directory=IMAGE_STORE_DIR,
+                                   frame_count=frame_counter)        
 
 
 # Release the cam link

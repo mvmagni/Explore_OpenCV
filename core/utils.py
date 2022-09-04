@@ -54,9 +54,7 @@ def show_fps(img, prev_frame_time, fps_queue=None):
  
     # putting the FPS count on the frame
     cv.putText(img, str(int(mean((fps_queue)))), (15, 50), font, 1.5, (100, 255, 0), 2, cv.LINE_AA)
-    return new_frame_time, fps_queue
- 
-    
+    return new_frame_time, fps_queue  
 
 def findObjects(outputs, img, classNames, show_labels=True):
     hT, wT, cT = img.shape

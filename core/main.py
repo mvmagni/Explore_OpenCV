@@ -16,8 +16,8 @@ IMAGE_STORE_DIR = f'd:/OBS_Recordings'
 SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
 
 #Configs for changing video while running
-SHOW_FPS=False
-SHOW_DETECT=False
+SHOW_FPS=True
+SHOW_DETECT=True
 SHOW_DETECT_LABELS=True
 
 ###############################################################################
@@ -32,57 +32,30 @@ if classNames is None:
 # Setup the NN parameters
 # Setup the basics for darknet in CV
 # Load in model config and weights
-CONFIG_TYPE=6
+#CONFIG_TYPE=yc.MODEL_YOLOV3_320_320
 
-if CONFIG_TYPE == 1:
-    # Default target for width and height in YOLO network
-    # Used in cv.dnn.blobFromImage
-    whT = 320
-    hhT = 320
-    modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320.cfg'
-    modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3.weights'
+CONFIG_TYPE=yc.MODEL_YOLOV3_320_192
+#CONFIG_TYPE=yc.MODEL_YOLOV3_416_256
+#CONFIG_TYPE=yc.MODEL_YOLOV3_576_352
+#CONFIG_TYPE=yc.MODEL_YOLOV3_608_352
 
-elif CONFIG_TYPE == 2: 
-    # Default target for width and height in YOLO network
-    # Used in cv.dnn.blobFromImage
-    whT = 412
-    hhT = 412
-    modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-tiny.cfg'
-    modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-tiny.weights'
+#CONFIG_TYPE=yc.MODEL_YOLOV3T_320_192
+#CONFIG_TYPE=yc.MODEL_YOLOV3T_416_256
+#CONFIG_TYPE=yc.MODEL_YOLOV3T_576_352
+#CONFIG_TYPE=yc.MODEL_YOLOV3T_608_352
 
-elif CONFIG_TYPE == 3:
-    # Default target for width and height in YOLO network
-    # Used in cv.dnn.blobFromImage
-    whT = 608
-    hhT = 608
-    modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov4_new_608.cfg'
-    modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov4_new.weights'
+#CONFIG_TYPE=yc.MODEL_YOLOV4N_320_192
+#CONFIG_TYPE=yc.MODEL_YOLOV4N_416_256
+#CONFIG_TYPE=yc.MODEL_YOLOV4N_576_352
+#CONFIG_TYPE=yc.MODEL_YOLOV4N_608_352
 
-elif CONFIG_TYPE == 4:
-    # Default target for width and height in YOLO network
-    # Used in cv.dnn.blobFromImage
-    whT = 416
-    hhT = 416
-    modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov4_new_416.cfg'
-    modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov4_new.weights'
-
-elif CONFIG_TYPE == 5:
-    # Default target for width and height in YOLO network
-    # Used in cv.dnn.blobFromImage
-    whT = 480
-    hhT = 320
-    modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-416.cfg'
-    modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3.weights'
-
-if CONFIG_TYPE == 6:
-    # Default target for width and height in YOLO network
-    # Used in cv.dnn.blobFromImage
-    whT = 320
-    hhT = 192
-    modelConfiguration=f'{PROJECT_ROOT_DIR}/net_configs/yolov3-320_180.cfg'
-    modelWeights=f'{PROJECT_ROOT_DIR}/net_configs/yolov3.weights'
+#CONFIG_TYPE=yc.MODEL_YOLOV4T_320_192
+#CONFIG_TYPE=yc.MODEL_YOLOV4T_416_256
+#CONFIG_TYPE=yc.MODEL_YOLOV4T_576_352
+#CONFIG_TYPE=yc.MODEL_YOLOV4T_608_352
     
-net, outputNames = yc.get_net_config(modelConfiguration, modelWeights)
+net, outputNames, whT, hhT = yc.get_net_config(model_type=CONFIG_TYPE,
+                                               config_dir=f'{PROJECT_ROOT_DIR}/net_configs')
 ###############################################################################
 
 ###############################################################################
@@ -108,7 +81,7 @@ while True:
 
     if SHOW_DETECT:
         blob = cv.dnn.blobFromImage(frame, 1/255, (whT,hhT),[0,0,0],1,crop=False)
-        
+         
         net.setInput(blob)
         outputs = net.forward(outputNames)
             

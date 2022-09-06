@@ -5,6 +5,7 @@ import time
 from PIL import Image
 from statistics import mean
 from model_net import ModelNet
+import yolo_config as yc
 
 def write_progress_image(img, 
                          operating_config, 
@@ -59,27 +60,46 @@ def show_fps(img, operating_config):
                cv.LINE_AA)
     
 
-def process_image(modelNet, img, operating_config):
-    
-    (class_ids, scores, boxes) = modelNet.detect(img)
-    
-    #print(indices)
-    for idx, box in enumerate(boxes, start=0):
-        className = modelNet.classes[class_ids[idx]]
-        confidence = scores[idx]
-        
-        
-        show_bounding_box(img=img, 
-                          bbox=box,
-                          classID=class_ids[idx],
-                          class_name=f'{className.title()}',
-                          confidence=confidence,
-                          show_labels=operating_config.SHOW_DETECT_LABELS)
-        
-    
-    if operating_config.SHOW_DETECT_LABELS:
-        show_fps(img=img, operating_config=operating_config) 
+def write_info_bottom_left(img,
+                           info,
+                           operating_config):
+    h, w, c = img.shape
+    # print(f'w:{w}, h:{h}')
+    cv.putText(img, 
+               info, 
+               (40, h-50), 
+               operating_config.font, 
+               1.5, 
+               (100, 255, 0), 
+               2, 
+               cv.LINE_AA)
 
+def process_image(modelNet, img, operating_config):
+   
+    if operating_config.SHOW_FPS:
+        show_fps(img=img, operating_config=operating_config)
+    
+    if operating_config.SHOW_MODEL_CONFIG:
+        write_info_bottom_left(img=img,
+                               info=modelNet.model_type,
+                               operating_config=operating_config)
+
+    if operating_config.SHOW_DETECT:
+        (class_ids, scores, boxes) = modelNet.detect(img)
+        
+        #print(indices)
+        for idx, box in enumerate(boxes, start=0):
+            className = modelNet.classes[class_ids[idx]]
+            confidence = scores[idx]
+            
+            show_bounding_box(img=img, 
+                            bbox=box,
+                            classID=class_ids[idx],
+                            class_name=f'{className.title()}',
+                            confidence=confidence,
+                            show_labels=operating_config.SHOW_DETECT_LABELS)
+            
+            
 def show_bounding_box(img, 
                       bbox, 
                       classID, 
@@ -116,11 +136,123 @@ def show_label(img,
 
 def get_class_colour(classID):
     if classID == 0: # person
-        colour = (255,51,153) # colour=
+        colour = (255,51,153) # colour=blue
     elif classID == 2: # car
         colour = (255,153,51) # colour=cyan
     else: 
         colour = (0,204,204) # colour=yellow
     
     return colour
+
+
+def handle_config_key_input(img,
+                            key,
+                            operating_config):
+    if key%256 == 27:
+        # ESC pressed
+        print("Escape hit, closing...")
+        operating_config.RUN_PROGRAM = False
+        operating_config.PROCESS_IMAGES = False
+        operating_config.CONFIGURE = False
+    elif key%256 == 103: # letter g, Go and process video
+        print(f'Running process')
+        operating_config.CONFIGURE = False
+        operating_config.PROCESS_IMAGES = True
     
+    elif key%256 == 91: # left square bracket "["
+        # Set previous model as desired one
+        print(f'Left square bracket pressed')
+        set_desired_model(operating_config,
+                          -1)  
+    elif key%256 == 93: # right square bracket "]"
+        # Set next model as desired one
+        print(f'Right square bracket pressed')
+        set_desired_model(operating_config,
+                          1)
+    elif key%256 == 102: #small f
+        operating_config.SHOW_FPS = not operating_config.SHOW_FPS
+    elif key%256 == 100: #small d
+        operating_config.SHOW_DETECT = not operating_config.SHOW_DETECT
+    elif key%256 == 108: # small l (letter L)
+        operating_config.SHOW_DETECT_LABELS = not operating_config.SHOW_DETECT_LABELS
+    elif key%256 == 32:
+        # SPACE pressed
+        write_progress_image(img=img,
+                             operating_config=operating_config
+                            )   
+
+def handle_processing_key_input(img,
+                                key,
+                                operating_config):
+    if key%256 == 27:
+        # ESC pressed
+        print("Escape hit, closing...")
+        operating_config.RUN_PROGRAM = False
+        operating_config.PROCESS_IMAGES = False
+        operating_config.CONFIGURE = False
+
+    elif key%256 == 99: #small c
+        operating_config.PROCESS_IMAGES = False
+        operating_config.CONFIGURE = True
+    elif key%256 == 102: #small f
+        operating_config.SHOW_FPS = not operating_config.SHOW_FPS
+    elif key%256 == 100: #small d
+        operating_config.SHOW_DETECT = not operating_config.SHOW_DETECT
+    elif key%256 == 108: # small l (letter L)
+        operating_config.SHOW_DETECT_LABELS = not operating_config.SHOW_DETECT_LABELS
+    elif key%256 == 32:
+        # SPACE pressed
+        write_progress_image(img=img,
+                             operating_config=operating_config
+                            )
+
+def set_desired_model(operating_config,
+                      increment):
+    desired_model=operating_config.detection_model
+    model_list = yc.MODEL_LIST
+    
+    curr_model_index=model_list.index(desired_model)    
+    
+    # deal with edge cases first
+    if curr_model_index == (len(model_list)-1) and increment == 1: # Case end of list
+        print(f'Current index at end of list')
+        desired_model=model_list[0]
+    elif curr_model_index == 0 and increment == -1: # Case start of list
+        print(f'Current index at start of list')
+        desired_model=model_list[len(model_list)-1]
+    else:
+        print(f'Standard case: increment by: {increment}')
+        desired_model=model_list[curr_model_index+increment]
+    
+    operating_config.detection_model=desired_model
+    print(f'Desired model: {desired_model}')
+
+def write_row_of_info(img,
+                      info,
+                      rownum,
+                      operating_config):
+    cv.putText(img, 
+               info, 
+               (40, 60 * rownum), 
+               operating_config.font, 
+               1.0, 
+               (100, 255, 0), 
+               2, 
+               cv.LINE_AA)
+
+def write_config_screen(img,
+                        modelNet,
+                        operating_config):
+        
+        screen_info=[]
+        screen_info.append(f'Detection model active:  {modelNet.model_type}')
+        screen_info.append(f'Detection model desired: {operating_config.detection_model}')
+        screen_info.append(f'Detection on:     {operating_config.SHOW_DETECT}')
+        screen_info.append(f'Object labels on: {operating_config.SHOW_DETECT_LABELS}')
+        screen_info.append(f'FPS display on:   {operating_config.SHOW_FPS}')
+        
+        for i in range(1,len(screen_info)+1):
+            write_row_of_info(img=img,
+                              info=screen_info[i-1],
+                              rownum=i,
+                              operating_config=operating_config)

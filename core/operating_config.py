@@ -1,24 +1,50 @@
 import cv2 as cv
 import os
+import yolo_config as yc
 from dataclasses import dataclass, field
 
 @dataclass
 class operatingConfig:
-    # Where to store screenshots
+     # Where to store screenshots
     image_store_dir: str
-        
+    resource_dir: str
+    model_config_dir: str
+    className_file: str
+    detection_model: str = field(init=False)
+      
+    # Default model to load
+    DEFAULT_MODEL: str = yc.MODEL_YOLOV3_416_256    
+    
+    
     #Configs for changing video while running
     SHOW_FPS: bool = True
     SHOW_DETECT: bool = True
     SHOW_DETECT_LABELS: bool = True
+    SHOW_MODEL_CONFIG: bool = True
+    
+    # Whether the program should RUN or not
+    RUN_PROGRAM: bool = True
+    
+    # Process video file
+    PROCESS_IMAGES: bool = True
+    
+    # Show Configuration screen
+    CONFIGURE: bool = True
     
     # Runtime variables
     fps_queue: list = field(default_factory=list)
     prev_frame_time: int = 0
     frame_counter: int = 0
     
+    # How many frames to show Model info on activate/switch
+    SHOW_MODEL_DETAILS: bool = True
+    SHOW_MODEL_DETAILS_FPS: int = 90
+    
+    # Default common values
+    font = cv.FONT_HERSHEY_SIMPLEX
 
     def __post_init__(self):
+        self.detection_model = self.DEFAULT_MODEL
         self.print_environment()
 
     def print_environment(self):

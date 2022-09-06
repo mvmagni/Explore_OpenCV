@@ -4,16 +4,16 @@ import yolo_config as yc
 
 @dataclass
 class ModelNet:
-    model_type: str
     config_dir: str
     classname_file: str
+    model_type: str
     
     target_whT: int = field(init=False)
     target_hhT: int = field(init=False)
     model_config_file: str = field(init=False)
     model_weights_file: str = field(init=False)
     
-    CONFIDENCE_THRESHOLD=0.5
+    CONFIDENCE_THRESHOLD=0.6
     NMS_THRESHOLD=0.3
 
     def __post_init__(self):

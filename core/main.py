@@ -4,7 +4,6 @@ import os
 import utils
 import yolo_config as yc
 from statistics import mean
-import time
 from operating_config import operatingConfig
 from model_net import ModelNet
 
@@ -12,46 +11,16 @@ from model_net import ModelNet
 PROJECT_ROOT_DIR = f'{os.getcwd()}/Explore_OpenCV'
 image_store_dir = f'd:/OBS_Recordings'
 model_config_dir = f'{PROJECT_ROOT_DIR}/net_configs'
+resource_dir = f'{PROJECT_ROOT_DIR}/resources'
 className_file = f'{PROJECT_ROOT_DIR}/net_configs/coco.names'
 SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
+#SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/highway.mp4'
 
 #Configs for changing video while running
-op_config = operatingConfig(image_store_dir=image_store_dir)
-
-
-###############################################################################
-# Setup the NN parameters
-# Setup the basics for darknet in CV
-# Load in model config and weights
-#CONFIG_TYPE=yc.MODEL_YOLOV3_320_320
-
-CONFIG_TYPE=yc.MODEL_YOLOV3_320_192
-#CONFIG_TYPE=yc.MODEL_YOLOV3_416_256
-#CONFIG_TYPE=yc.MODEL_YOLOV3_576_352
-#CONFIG_TYPE=yc.MODEL_YOLOV3_608_352
-
-#CONFIG_TYPE=yc.MODEL_YOLOV3T_320_192
-#CONFIG_TYPE=yc.MODEL_YOLOV3T_416_256
-#CONFIG_TYPE=yc.MODEL_YOLOV3T_576_352
-#CONFIG_TYPE=yc.MODEL_YOLOV3T_608_352
-
-#CONFIG_TYPE=yc.MODEL_YOLOV4N_320_192
-#CONFIG_TYPE=yc.MODEL_YOLOV4N_416_256
-#CONFIG_TYPE=yc.MODEL_YOLOV4N_576_352
-#CONFIG_TYPE=yc.MODEL_YOLOV4N_608_352
-
-#CONFIG_TYPE=yc.MODEL_YOLOV4T_320_192
-#CONFIG_TYPE=yc.MODEL_YOLOV4T_416_256
-#CONFIG_TYPE=yc.MODEL_YOLOV4T_576_352
-#CONFIG_TYPE=yc.MODEL_YOLOV4T_608_352
-
-# Testing new ModelNet class
-mn = ModelNet(model_type=CONFIG_TYPE,
-              config_dir=model_config_dir,
-              classname_file=className_file
-              )
-
-###############################################################################
+op_config = operatingConfig(image_store_dir=image_store_dir,
+                            resource_dir=resource_dir,
+                            model_config_dir=model_config_dir,
+                            className_file = className_file)
 
 ###############################################################################
 # Config video capture. 0 is first
@@ -64,44 +33,60 @@ cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
 ################################################################################
 
-#fps_queue=None
-#prev_frame_time = 0
-#frame_counter = 0
-while True:
-    op_config.frame_counter += 1
-    success, frame = cap.read()
+# Initialize empty ModelNet as mn
+mn=None
+while op_config.RUN_PROGRAM:
+    if mn is None:
+        # Create a default model
+        mn = ModelNet(config_dir=op_config.model_config_dir,
+                      classname_file=op_config.className_file,
+                      model_type=op_config.detection_model
+                      )
+    
+    while op_config.CONFIGURE:
+        # Load image
+        bg_img = cv.imread(f'{op_config.resource_dir}/background.jpg')
+        
+        utils.write_config_screen(img=bg_img,
+                                  modelNet=mn,
+                                  operating_config=op_config)
+        cv.imshow("OpenCV Test", bg_img)
+        
+        # Handle input for configuration
+        k = cv.waitKey(5)
+        utils.handle_config_key_input(img=bg_img,
+                                      key=k,
+                                      operating_config=op_config)
 
-    if op_config.frame_counter == 1:
-        print(f'Image size: {frame.shape}')
 
-    if op_config.SHOW_FPS:
-        utils.show_fps(img=frame, operating_config=op_config) 
+    # Check to see if current detection model matches the desired model
+    if not (op_config.detection_model == mn.model_type):
+        mn = ModelNet(config_dir=op_config.model_config_dir,
+                      classname_file=op_config.className_file,
+                      model_type=op_config.detection_model
+                      )
+    else: 
+        print(f'Desired detection model already active')
 
-    if op_config.SHOW_DETECT:
+    while op_config.PROCESS_IMAGES:
+        op_config.frame_counter += 1
+        success, frame = cap.read()
+
+        if op_config.frame_counter == 1:
+            print(f'Image size: {frame.shape}')
+
         utils.process_image(modelNet=mn,
                             img=frame,
                             operating_config=op_config)
 
-    # Show the image
-    cv.imshow('OpenCV Test',frame)
+        # Show the image
+        cv.imshow('OpenCV Test',frame)
 
-    # Esc to close, space to write a copy of the image
-    k = cv.waitKey(1)
-    if k%256 == 27:
-        # ESC pressed
-        print("Escape hit, closing...")
-        break
-    elif k%256 == 102: #small f
-        op_config.SHOW_FPS = not op_config.SHOW_FPS
-    elif k%256 == 100: #small d
-        op_config.SHOW_DETECT = not op_config.SHOW_DETECT
-    elif k%256 == 108: # small l (letter L)
-        op_config.SHOW_DETECT_LABELS = not op_config.SHOW_DETECT_LABELS
-    elif k%256 == 32:
-        # SPACE pressed
-        utils.write_progress_image(img=frame,
-                                   operating_config=op_config
-                                   )        
+        # Esc to close, space to write a copy of the image
+        k = cv.waitKey(1)
+        utils.handle_processing_key_input(img=frame,
+                                          key=k,
+                                          operating_config=op_config)     
 
 
 # Release the cam link

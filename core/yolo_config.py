@@ -4,11 +4,10 @@ def get_net_config(model_type, config_dir):
     
     whT, hhT, modelConfiguration, modelWeights = get_model_config(config_dir=config_dir,
                                                                   model_type=model_type)
-    
-    
-    
-    
-    net = cv.dnn.readNetFromDarknet(modelConfiguration,modelWeights)
+      
+    # Chagned from "FromDarknet" to generic. 2022-09-06
+    #net = cv.dnn.readNetFromDarknet(modelConfiguration,modelWeights)
+    net = cv.dnn.readNet(modelWeights, modelConfiguration)
     
     net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
     net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
@@ -27,6 +26,7 @@ def get_net_config(model_type, config_dir):
     print(outputNames) #(gives output names of the layers)
     
     return net, outputNames, whT, hhT
+
 
 # Constants to be used for "get_model_config(model_type=)"
 MODEL_YOLOV3_320_320=1

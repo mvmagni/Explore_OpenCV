@@ -4,6 +4,7 @@ from datetime import datetime
 import time
 from PIL import Image
 from statistics import mean
+from model_net import ModelNet
 
 CONFIDENCE_THRESHOLD=0.5
 NMS_THRESHOLD=0.3 #lower it is the more aggressive and the less overlapping boxes per object
@@ -61,6 +62,7 @@ def findObjects(outputs, img, classNames, show_labels=True):
     bbox = []
     classIDs = []
     confidence = []
+  
     
     for output in outputs:
         for detection in output:
@@ -85,14 +87,74 @@ def findObjects(outputs, img, classNames, show_labels=True):
     for i in indices:
         box = bbox[i]
         x,y,w,h = box[0], box[1], box[2], box[3]
-        if classIDs[i] == 0: # person
-            colour = (255,51,153) # colour=
-        elif classIDs[i] == 2: # car
-            colour = (255,153,51) # colour=cyan
-        else: 
-            colour = (0,204,204) # colour=yellow
-        cv.rectangle(img,(x,y), (x+w,y+h), colour,2)
+
+
+        show_bounding_box(img=img, 
+                          bbox=bbox[i],
+                          weight=2,
+                          classID=classIDs[i],
+                          class_name=f'{classNames[classIDs[i]].title()}',
+                          confidence=confidence[i],
+                          show_labels=show_labels)
+
+def process_image(modelNet, img, show_labels):
+    
+    (class_ids, scores, boxes) = modelNet.detect(img)
+    
+    #print(indices)
+    for idx, box in enumerate(boxes, start=0):
+        className = modelNet.classes[class_ids[idx]]
+        confidence = scores[idx]
         
-        if show_labels:
-            cv.putText(img,f'{classNames[classIDs[i]].title()} {int(confidence[i]*100)}%',
-                    (x,y-5), cv.FONT_HERSHEY_SIMPLEX, 0.6,colour,2)
+        
+        show_bounding_box(img=img, 
+                          bbox=box,
+                          classID=class_ids[idx],
+                          class_name=f'{className.title()}',
+                          confidence=confidence,
+                          show_labels=show_labels)    
+
+def show_bounding_box(img, 
+                      bbox, 
+                      classID, 
+                      class_name, 
+                      confidence, 
+                      show_labels, 
+                      weight=2):
+    colour=get_class_colour(classID)
+    x,y,w,h = bbox[0], bbox[1], bbox[2], bbox[3]
+    cv.rectangle(img,(x,y), (x+w,y+h), colour, weight)
+    
+    if show_labels:
+        show_label(img=img,
+                   x=x,
+                   y=y,
+                   class_name=class_name,
+                   confidence=confidence,
+                   colour=colour)
+    
+def show_label(img, 
+               x,
+               y,
+               class_name,
+               confidence,
+               colour):
+    cv.putText(img,
+               f'{class_name} {int(confidence*100)}%',
+               (x,y-5), 
+               cv.FONT_HERSHEY_SIMPLEX,
+               0.6,
+               colour,
+               2
+               )
+
+def get_class_colour(classID):
+    if classID == 0: # person
+        colour = (255,51,153) # colour=
+    elif classID == 2: # car
+        colour = (255,153,51) # colour=cyan
+    else: 
+        colour = (0,204,204) # colour=yellow
+    
+    return colour
+    

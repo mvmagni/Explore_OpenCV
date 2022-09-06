@@ -5,20 +5,20 @@ import utils
 import yolo_config as yc
 from statistics import mean
 import time
-
-print(f'OpenCV Version: {cv.__version__}')
-print(f'CUDA enabled devices: {cv.cuda.getCudaEnabledDeviceCount()}')
-print(f'CWD: {os.getcwd()}')
+from operating_config import operatingConfig
+from model_net import ModelNet
 
 # Resource configs
 PROJECT_ROOT_DIR = f'{os.getcwd()}/Explore_OpenCV'
-IMAGE_STORE_DIR = f'd:/OBS_Recordings'
+image_store_dir = f'd:/OBS_Recordings'
+model_config_dir = f'{PROJECT_ROOT_DIR}/net_configs'
+className_file = f'{PROJECT_ROOT_DIR}/net_configs/coco.names'
 SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
 
 #Configs for changing video while running
-SHOW_FPS=True
-SHOW_DETECT=True
-SHOW_DETECT_LABELS=True
+op_config = operatingConfig(image_store_dir=image_store_dir)
+
+
 
 ###############################################################################
 # Get coco info
@@ -53,6 +53,13 @@ CONFIG_TYPE=yc.MODEL_YOLOV3_320_192
 #CONFIG_TYPE=yc.MODEL_YOLOV4T_416_256
 #CONFIG_TYPE=yc.MODEL_YOLOV4T_576_352
 #CONFIG_TYPE=yc.MODEL_YOLOV4T_608_352
+
+# Testing new ModelNet class
+mn = ModelNet(model_type=CONFIG_TYPE,
+              config_dir=model_config_dir,
+              classname_file=className_file
+              )
+
     
 net, outputNames, whT, hhT = yc.get_net_config(model_type=CONFIG_TYPE,
                                                config_dir=f'{PROJECT_ROOT_DIR}/net_configs')
@@ -79,15 +86,17 @@ while True:
     if frame_counter == 1:
         print(f'Image size: {frame.shape}')
 
-    if SHOW_DETECT:
-        blob = cv.dnn.blobFromImage(frame, 1/255, (whT,hhT),[0,0,0],1,crop=False)
-         
-        net.setInput(blob)
-        outputs = net.forward(outputNames)
-            
-        utils.findObjects(outputs,frame,classNames, show_labels=SHOW_DETECT_LABELS)
+    if op_config.SHOW_DETECT:
+        #blob = cv.dnn.blobFromImage(frame, 1/255, (whT,hhT),[0,0,0],1,crop=False)
+        #net.setInput(blob)
+        #outputs = net.forward(outputNames)   
+        #utils.findObjects(outputs,frame,classNames, show_labels=op_config.SHOW_DETECT_LABELS)
+        utils.process_image(modelNet=mn,
+                            img=frame,
+                            show_labels=op_config.SHOW_DETECT_LABELS)
 
-    if SHOW_FPS:
+
+    if op_config.SHOW_FPS:
         prev_frame_time, fps_queue = utils.show_fps(frame, prev_frame_time, fps_queue)
 
     # Show the image
@@ -100,15 +109,15 @@ while True:
         print("Escape hit, closing...")
         break
     elif k%256 == 102: #small f
-        SHOW_FPS = not SHOW_FPS
+        op_config.SHOW_FPS = not op_config.SHOW_FPS
     elif k%256 == 100: #small d
-        SHOW_DETECT = not SHOW_DETECT
+        op_config.SHOW_DETECT = not op_config.SHOW_DETECT
     elif k%256 == 108: # small l (letter L)
-        SHOW_DETECT_LABELS = not SHOW_DETECT_LABELS
+        op_config.SHOW_DETECT_LABELS = not op_config.SHOW_DETECT_LABELS
     elif k%256 == 32:
         # SPACE pressed
         utils.write_progress_image(img=frame,
-                                   directory=IMAGE_STORE_DIR,
+                                   directory=op_config,
                                    frame_count=frame_counter)        
 
 

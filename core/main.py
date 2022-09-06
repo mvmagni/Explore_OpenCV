@@ -19,15 +19,6 @@ SAMPLE_VIDEO=f'{PROJECT_ROOT_DIR}/resources/walk.mp4'
 op_config = operatingConfig(image_store_dir=image_store_dir)
 
 
-
-###############################################################################
-# Get coco info
-classNames = utils.get_classNames(f'{PROJECT_ROOT_DIR}/net_configs/coco.names')
-if classNames is None:
-    print(f'classNames not loaded')
-    exit()
-###############################################################################
-
 ###############################################################################
 # Setup the NN parameters
 # Setup the basics for darknet in CV
@@ -60,9 +51,6 @@ mn = ModelNet(model_type=CONFIG_TYPE,
               classname_file=className_file
               )
 
-    
-net, outputNames, whT, hhT = yc.get_net_config(model_type=CONFIG_TYPE,
-                                               config_dir=f'{PROJECT_ROOT_DIR}/net_configs')
 ###############################################################################
 
 ###############################################################################
@@ -76,28 +64,23 @@ cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
 ################################################################################
 
-fps_queue=None
-prev_frame_time = 0
-frame_counter = 0
+#fps_queue=None
+#prev_frame_time = 0
+#frame_counter = 0
 while True:
-    frame_counter += 1
+    op_config.frame_counter += 1
     success, frame = cap.read()
 
-    if frame_counter == 1:
+    if op_config.frame_counter == 1:
         print(f'Image size: {frame.shape}')
 
+    if op_config.SHOW_FPS:
+        utils.show_fps(img=frame, operating_config=op_config) 
+
     if op_config.SHOW_DETECT:
-        #blob = cv.dnn.blobFromImage(frame, 1/255, (whT,hhT),[0,0,0],1,crop=False)
-        #net.setInput(blob)
-        #outputs = net.forward(outputNames)   
-        #utils.findObjects(outputs,frame,classNames, show_labels=op_config.SHOW_DETECT_LABELS)
         utils.process_image(modelNet=mn,
                             img=frame,
-                            show_labels=op_config.SHOW_DETECT_LABELS)
-
-
-    if op_config.SHOW_FPS:
-        prev_frame_time, fps_queue = utils.show_fps(frame, prev_frame_time, fps_queue)
+                            operating_config=op_config)
 
     # Show the image
     cv.imshow('OpenCV Test',frame)
@@ -117,8 +100,8 @@ while True:
     elif k%256 == 32:
         # SPACE pressed
         utils.write_progress_image(img=frame,
-                                   directory=op_config,
-                                   frame_count=frame_counter)        
+                                   operating_config=op_config
+                                   )        
 
 
 # Release the cam link

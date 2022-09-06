@@ -1,33 +1,5 @@
 import cv2 as cv
 
-def get_net_config(model_type, config_dir):
-    
-    whT, hhT, modelConfiguration, modelWeights = get_model_config(config_dir=config_dir,
-                                                                  model_type=model_type)
-      
-    # Chagned from "FromDarknet" to generic. 2022-09-06
-    #net = cv.dnn.readNetFromDarknet(modelConfiguration,modelWeights)
-    net = cv.dnn.readNet(modelWeights, modelConfiguration)
-    
-    net.setPreferableBackend(cv.dnn.DNN_BACKEND_CUDA)
-    net.setPreferableTarget(cv.dnn.DNN_TARGET_CUDA)
-    #net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
-    #net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
-
-    # Need to get the names of the output layers.
-    # This gives the index of the layers, not the names
-    # e.g. value of 200 is 199 (because 0 is a valid layer)
-    layerNames = net.getLayerNames()
-    print(layerNames)
-    print(f'layerNames length: {len(layerNames)}, type: {type(layerNames)}')
-    print(net.getUnconnectedOutLayers())
-
-    outputNames = [layerNames[i-1] for i in net.getUnconnectedOutLayers()]
-    print(outputNames) #(gives output names of the layers)
-    
-    return net, outputNames, whT, hhT
-
-
 # Constants to be used for "get_model_config(model_type=)"
 MODEL_YOLOV3_320_320=1
 

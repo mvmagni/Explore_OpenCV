@@ -6,30 +6,24 @@ from PIL import Image
 from statistics import mean
 from model_net import ModelNet
 
-CONFIDENCE_THRESHOLD=0.5
-NMS_THRESHOLD=0.3 #lower it is the more aggressive and the less overlapping boxes per object
-
-def get_classNames(classFile):
-    # Coco info
-    classNames = []
-
-    with open(classFile, 'rt') as f:
-        classNames = f.read().rstrip('\n').split('\n')
-
-    return classNames
-
-def write_progress_image(img, directory, frame_count, extension='jpg', date_format='%Y-%m-%d_%H-%M-%S'):
-    fileName = f"{directory}/{datetime.today().strftime(f'{date_format}_f{frame_count}.{extension}')}"
-    cv.imwrite(filename=fileName, img=img)
+def write_progress_image(img, 
+                         operating_config, 
+                         extension='jpg', 
+                         date_format='%Y-%m-%d_%H-%M-%S'):
     
-    image_show = Image.open(fileName)
+    fileName = f"{datetime.today().strftime(f'{date_format}_f{operating_config.frame_counter}.{extension}')}"
+    writeToFile = f'{operating_config.image_store_dir}/{fileName}'
+    
+    cv.imwrite(filename=writeToFile, img=img)
+    
+    image_show = Image.open(writeToFile)
     image_show.show()
     
-def show_fps(img, prev_frame_time, fps_queue=None):
+def show_fps(img, operating_config):
     queue_length=90
     
-    if fps_queue is None:
-        fps_queue = []
+    if operating_config.fps_queue is None:
+        operating_config.fps_queue = []
     
     # font which we will be using to display FPS
     font = cv.FONT_HERSHEY_SIMPLEX
@@ -41,63 +35,31 @@ def show_fps(img, prev_frame_time, fps_queue=None):
     # fps will be number of frame processed in given time frame
     # since their will be most of time error of 0.001 second
     # we will be subtracting it to get more accurate result
-    fps = 1/(new_frame_time-prev_frame_time)
-    prev_frame_time = new_frame_time
+    fps = 1/(new_frame_time - operating_config.prev_frame_time)
+    operating_config.prev_frame_time = new_frame_time
  
     # converting the fps into integer
     fps = int(fps)
  
     # add fps
-    fps_queue.append(fps)
+    operating_config.fps_queue.append(fps)
+    
     # Remove anything above desired queue/avg length
-    while len(fps_queue) > queue_length:
-        fps_queue.pop(0)
+    while len(operating_config.fps_queue) > queue_length:
+        operating_config.fps_queue.pop(0)
  
     # putting the FPS count on the frame
-    cv.putText(img, str(int(mean((fps_queue)))), (15, 50), font, 1.5, (100, 255, 0), 2, cv.LINE_AA)
-    return new_frame_time, fps_queue  
-
-def findObjects(outputs, img, classNames, show_labels=True):
-    hT, wT, cT = img.shape
-    bbox = []
-    classIDs = []
-    confidence = []
-  
+    cv.putText(img, 
+               str(int(mean((operating_config.fps_queue)))), 
+               (15, 50), 
+               font, 
+               1.5, 
+               (100, 255, 0), 
+               2, 
+               cv.LINE_AA)
     
-    for output in outputs:
-        for detection in output:
-            scores = detection[5:]
-            classID = np.argmax(scores) 
-            conf_obj = scores[classID]
-            if conf_obj > CONFIDENCE_THRESHOLD:
-                # get pixel values
-                w = int(detection[2]*wT)
-                h = int(detection[3]*hT) 
-                
-                #x,y is centre point
-                x = int((detection[0]*wT) - w/2)
-                y = int((detection[1]*hT) - h/2)
-                bbox.append([x,y,w,h])
-                classIDs.append(classID)
-                confidence.append(float(conf_obj))
-                
-    #print(len(bbox))
-    indices = cv.dnn.NMSBoxes(bbox,confidence,CONFIDENCE_THRESHOLD,NMS_THRESHOLD)
-    #print(indices)
-    for i in indices:
-        box = bbox[i]
-        x,y,w,h = box[0], box[1], box[2], box[3]
 
-
-        show_bounding_box(img=img, 
-                          bbox=bbox[i],
-                          weight=2,
-                          classID=classIDs[i],
-                          class_name=f'{classNames[classIDs[i]].title()}',
-                          confidence=confidence[i],
-                          show_labels=show_labels)
-
-def process_image(modelNet, img, show_labels):
+def process_image(modelNet, img, operating_config):
     
     (class_ids, scores, boxes) = modelNet.detect(img)
     
@@ -112,7 +74,11 @@ def process_image(modelNet, img, show_labels):
                           classID=class_ids[idx],
                           class_name=f'{className.title()}',
                           confidence=confidence,
-                          show_labels=show_labels)    
+                          show_labels=operating_config.SHOW_DETECT_LABELS)
+        
+    
+    if operating_config.SHOW_DETECT_LABELS:
+        show_fps(img=img, operating_config=operating_config) 
 
 def show_bounding_box(img, 
                       bbox, 

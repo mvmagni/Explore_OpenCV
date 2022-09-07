@@ -1,46 +1,24 @@
-from datetime import datetime
-import yolo_config as yc
+import cv2 as cv
+import os
 
-startModel = yc.MODEL_YOLOV4T_608_352
-
-lst = yc.MODEL_LIST
-print(lst)
-
-print(lst.index(startModel))
-
-increment = 1
-
-
-def printIdx(increment, lst, currModel):
-    print(f'Length of list: {len(lst)}')
-    print(f'currModel:      {currModel}')
-
-    desired_model=None
-    
-    curr_model_index=lst.index(currModel)    
-    
-    # deal with edge cases first
-    if curr_model_index == (len(lst)-1) and increment == 1: # Case end of list
-        print(f'Current index at end of list')
-        desired_model=lst[0]
-    elif curr_model_index == 0 and increment == -1: # Case start of list
-        print(f'Current index at start of list')
-        desired_model=lst[len(lst)-1]
-    else:
-        print(f'Standard case: increment by: {increment}')
-        desired_model=lst[curr_model_index+increment]
-    
-    print(f'Desired model: {desired_model}')
- 
-
-printIdx(increment=1,
-         lst=lst,
-         currModel=startModel)
-
-printIdx(increment=-1,
-         lst=lst,
-         currModel=startModel)
-
-
-
-
+print(f'{os.getcwd()}')
+alpha = 0.5
+# [load]
+src1 = cv.imread('Explore_OpenCV/resources/background.jpg')
+src2 = cv.imread('Explore_OpenCV/resources/HUD.jpg')
+# [load]
+if src1 is None:
+    print("Error loading src1")
+    exit(-1)
+elif src2 is None:
+    print("Error loading src2")
+    exit(-1)
+# [blend_images]
+beta = (1.0 - alpha)
+dst = cv.addWeighted(src1, alpha, src2, beta, 0.0)
+# [blend_images]
+# [display]
+cv.imshow('dst', dst)
+cv.waitKey(0)
+# [display]
+cv.destroyAllWindows()

@@ -33,22 +33,12 @@ cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
 ################################################################################
 
-# Initialize empty ModelNet as mn
-mn=None
-while op_config.RUN_PROGRAM:
-    if mn is None:
-        # Create a default model
-        mn = ModelNet(config_dir=op_config.model_config_dir,
-                      classname_file=op_config.className_file,
-                      model_type=op_config.detection_model
-                      )
-    
+while op_config.RUN_PROGRAM: 
     while op_config.CONFIGURE:
         # Load image
         bg_img = cv.imread(f'{op_config.resource_dir}/background.jpg')
         
         utils.write_config_screen(img=bg_img,
-                                  modelNet=mn,
                                   operating_config=op_config)
         cv.imshow("OpenCV Test", bg_img)
         
@@ -58,13 +48,9 @@ while op_config.RUN_PROGRAM:
                                       key=k,
                                       operating_config=op_config)
 
-
     # Check to see if current detection model matches the desired model
-    if not (op_config.detection_model == mn.model_type):
-        mn = ModelNet(config_dir=op_config.model_config_dir,
-                      classname_file=op_config.className_file,
-                      model_type=op_config.detection_model
-                      )
+    if not (op_config.detection_model == op_config.modelNet.model_type):
+        op_config.create_modelNet()
     else: 
         print(f'Desired detection model already active')
 
@@ -75,8 +61,7 @@ while op_config.RUN_PROGRAM:
         if op_config.frame_counter == 1:
             print(f'Image size: {frame.shape}')
 
-        utils.process_image(modelNet=mn,
-                            img=frame,
+        utils.process_image(img=frame,
                             operating_config=op_config)
 
         # Show the image

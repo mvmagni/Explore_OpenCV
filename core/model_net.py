@@ -7,14 +7,14 @@ class ModelNet:
     config_dir: str
     classname_file: str
     model_type: str
+    confidence_threshold: float
+    nms_threshold: float
     
     target_whT: int = field(init=False)
     target_hhT: int = field(init=False)
     model_config_file: str = field(init=False)
     model_weights_file: str = field(init=False)
     
-    CONFIDENCE_THRESHOLD=0.6
-    NMS_THRESHOLD=0.3
 
     def __post_init__(self):
         self.target_whT, self.target_hhT,self.model_config_file, self.model_weights_file = yc.get_model_config(config_dir=self.config_dir,
@@ -35,8 +35,8 @@ class ModelNet:
     def detect(self, img):
         # return example(class_ids, scores, boxes) = detect(img)
         return self.model.detect(img, 
-                                 nmsThreshold=self.NMS_THRESHOLD,
-                                 confThreshold=self.CONFIDENCE_THRESHOLD)
+                                 nmsThreshold=self.nms_threshold,
+                                 confThreshold=self.confidence_threshold)
    
 def get_classNames(classFile):
     # Coco info

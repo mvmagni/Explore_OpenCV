@@ -51,15 +51,14 @@ def show_fps(img, operating_config):
  
     # putting the FPS count on the frame
     cv.putText(img, 
-               str(int(mean((operating_config.fps_queue)))), 
+               'FPS:'+ str(int(mean((operating_config.fps_queue)))), 
                (15, 50), 
                font, 
-               1.5, 
+               1.0, 
                (100, 255, 0), 
-               2, 
+               1, 
                cv.LINE_AA)
     
-
 def write_info_bottom_left(img,
                            info,
                            operating_config):
@@ -74,22 +73,22 @@ def write_info_bottom_left(img,
                2, 
                cv.LINE_AA)
 
-def process_image(modelNet, img, operating_config):
+def process_image(img, operating_config):
    
     if operating_config.SHOW_FPS:
         show_fps(img=img, operating_config=operating_config)
     
     if operating_config.SHOW_MODEL_CONFIG:
         write_info_bottom_left(img=img,
-                               info=modelNet.model_type,
+                               info=operating_config.modelNet.model_type,
                                operating_config=operating_config)
 
     if operating_config.SHOW_DETECT:
-        (class_ids, scores, boxes) = modelNet.detect(img)
+        (class_ids, scores, boxes) = operating_config.modelNet.detect(img)
         
         #print(indices)
         for idx, box in enumerate(boxes, start=0):
-            className = modelNet.classes[class_ids[idx]]
+            className = operating_config.modelNet.classes[class_ids[idx]]
             confidence = scores[idx]
             
             show_bounding_box(img=img, 
@@ -106,10 +105,32 @@ def show_bounding_box(img,
                       class_name, 
                       confidence, 
                       show_labels, 
-                      weight=2):
+                      weight=1):
     colour=get_class_colour(classID)
     x,y,w,h = bbox[0], bbox[1], bbox[2], bbox[3]
+    
     cv.rectangle(img,(x,y), (x+w,y+h), colour, weight)
+    
+    line_width_max = 50
+    line_width = min(int(w/2 * 0.30), line_width_max)
+    line_thickness_w = 3
+    line_thickness_h = 3
+    
+    # Top left
+    cv.line(img, (x,y), (x + line_width, y), colour, thickness=line_thickness_w)
+    cv.line(img, (x,y), (x, y + line_width), colour, thickness=line_thickness_h)
+    
+    # Top right
+    cv.line(img, (x + w,y), (x + w - line_width, y), colour, thickness=line_thickness_w)
+    cv.line(img, (x + w,y), (x + w, y + line_width), colour, thickness=line_thickness_h)
+    
+    # Bottom left
+    cv.line(img, (x,y + h), (x + line_width, y + h), colour, thickness=line_thickness_w)
+    cv.line(img, (x,y + h), (x, y + h - line_width), colour, thickness=line_thickness_h)
+    
+    # Bottom right
+    cv.line(img, (x + w, y + h), (x + w - line_width, y + h), colour, thickness=line_thickness_w)
+    cv.line(img, (x + w, y + h), (x + w, y + h - line_width), colour, thickness=line_thickness_h)
     
     if show_labels:
         show_label(img=img,
@@ -154,29 +175,47 @@ def handle_config_key_input(img,
         operating_config.RUN_PROGRAM = False
         operating_config.PROCESS_IMAGES = False
         operating_config.CONFIGURE = False
+        
     elif key%256 == 103: # letter g, Go and process video
         print(f'Running process')
         operating_config.CONFIGURE = False
         operating_config.PROCESS_IMAGES = True
     
+    # Model changes - cycle through available
     elif key%256 == 91: # left square bracket "["
         # Set previous model as desired one
-        print(f'Left square bracket pressed')
-        set_desired_model(operating_config,
-                          -1)  
+        set_desired_model(operating_config, -1)  
     elif key%256 == 93: # right square bracket "]"
         # Set next model as desired one
-        print(f'Right square bracket pressed')
-        set_desired_model(operating_config,
-                          1)
+        set_desired_model(operating_config, 1)
+    
+    # Config changes - can be done in runtime
     elif key%256 == 102: #small f
         operating_config.SHOW_FPS = not operating_config.SHOW_FPS
     elif key%256 == 100: #small d
         operating_config.SHOW_DETECT = not operating_config.SHOW_DETECT
     elif key%256 == 108: # small l (letter L)
         operating_config.SHOW_DETECT_LABELS = not operating_config.SHOW_DETECT_LABELS
-    elif key%256 == 32:
-        # SPACE pressed
+    
+    # Increase or decrease confidence threshold
+    elif key%256 == 43: # + increase confidence    
+        adjust_confidence_threshold(operating_config=operating_config,
+                                    adjust_by=operating_config.CONF_THRESHOLD_ADJUSTBY)
+    elif key%256 == 45: # - decrease confidence
+        adjust_confidence_threshold(operating_config=operating_config,
+                                    adjust_by=-operating_config.CONF_THRESHOLD_ADJUSTBY)
+    
+    # Increase or decrease confidence threshold
+    elif key%256 == 39: # ' increase nms_threshold    
+        adjust_nms_threshold(operating_config=operating_config,
+                             adjust_by=operating_config.NMS_THRESHOLD_ADJUSTBY)
+        
+    elif key%256 == 59: # ; decrease nms_threshold
+        adjust_nms_threshold(operating_config=operating_config,
+                             adjust_by=-operating_config.NMS_THRESHOLD_ADJUSTBY)
+    
+    # Take screenshot
+    elif key%256 == 32: # SPACE pressed
         write_progress_image(img=img,
                              operating_config=operating_config
                             )   
@@ -205,6 +244,44 @@ def handle_processing_key_input(img,
         write_progress_image(img=img,
                              operating_config=operating_config
                             )
+
+def adjust_nms_threshold(operating_config,
+                         adjust_by):
+    
+    new_threshold = round(operating_config.NMS_THRESHOLD + adjust_by,2)
+    
+    if new_threshold < 0: #Can't go below 0
+        # Adding the operating config threshold stays if model changes
+        operating_config.NMS_THRESHOLD = 0
+        operating_config.modelNet.nms_threshold = 0
+    elif new_threshold > 1: #Can't go above 1
+        # Adding the operating config threshold stays if model changes
+        operating_config.NMS_THRESHOLD = 1
+        operating_config.modelNet.nms_threshold = 1
+    else:
+        # Adding the operating config threshold stays if model changes
+        operating_config.NMS_THRESHOLD = new_threshold
+        operating_config.modelNet.nms_threshold = new_threshold
+
+
+def adjust_confidence_threshold(operating_config,
+                                adjust_by):
+    
+    new_threshold = round(operating_config.CONFIDENCE_THRESHOLD + adjust_by,2)
+    
+    if new_threshold < 0: #Can't go below 0
+        # Adding the operating config threshold stays if model changes
+        operating_config.CONFIDENCE_THRESHOLD = 0
+        operating_config.modelNet.confidence_threshold = 0
+    elif new_threshold > 1: #Can't go above 1
+        # Adding the operating config threshold stays if model changes
+        operating_config.CONFIDENCE_THRESHOLD = 1
+        operating_config.modelNet.confidence_threshold = 1
+    else:
+        # Adding the operating config threshold stays if model changes
+        operating_config.CONFIDENCE_THRESHOLD = new_threshold
+        operating_config.modelNet.confidence_threshold = new_threshold
+
 
 def set_desired_model(operating_config,
                       increment):
@@ -241,15 +318,16 @@ def write_row_of_info(img,
                cv.LINE_AA)
 
 def write_config_screen(img,
-                        modelNet,
                         operating_config):
         
         screen_info=[]
-        screen_info.append(f'Detection model active:  {modelNet.model_type}')
+        screen_info.append(f'Detection model active:  {operating_config.modelNet.model_type}')
         screen_info.append(f'Detection model desired: {operating_config.detection_model}')
         screen_info.append(f'Detection on:     {operating_config.SHOW_DETECT}')
         screen_info.append(f'Object labels on: {operating_config.SHOW_DETECT_LABELS}')
         screen_info.append(f'FPS display on:   {operating_config.SHOW_FPS}')
+        screen_info.append(f'Confidence Threshold: {operating_config.modelNet.confidence_threshold}')
+        screen_info.append(f'NMS Threshold: {operating_config.modelNet.nms_threshold}')
         
         for i in range(1,len(screen_info)+1):
             write_row_of_info(img=img,

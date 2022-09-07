@@ -113,24 +113,25 @@ def show_bounding_box(img,
     
     line_width_max = 50
     line_width = min(int(w/2 * 0.30), line_width_max)
+    line_height = min(int(h/2 * 0.30), line_width_max)
     line_thickness_w = 3
     line_thickness_h = 3
     
     # Top left
     cv.line(img, (x,y), (x + line_width, y), colour, thickness=line_thickness_w)
-    cv.line(img, (x,y), (x, y + line_width), colour, thickness=line_thickness_h)
+    cv.line(img, (x,y), (x, y + line_height), colour, thickness=line_thickness_h)
     
     # Top right
     cv.line(img, (x + w,y), (x + w - line_width, y), colour, thickness=line_thickness_w)
-    cv.line(img, (x + w,y), (x + w, y + line_width), colour, thickness=line_thickness_h)
+    cv.line(img, (x + w,y), (x + w, y + line_height), colour, thickness=line_thickness_h)
     
     # Bottom left
     cv.line(img, (x,y + h), (x + line_width, y + h), colour, thickness=line_thickness_w)
-    cv.line(img, (x,y + h), (x, y + h - line_width), colour, thickness=line_thickness_h)
+    cv.line(img, (x,y + h), (x, y + h - line_height), colour, thickness=line_thickness_h)
     
     # Bottom right
     cv.line(img, (x + w, y + h), (x + w - line_width, y + h), colour, thickness=line_thickness_w)
-    cv.line(img, (x + w, y + h), (x + w, y + h - line_width), colour, thickness=line_thickness_h)
+    cv.line(img, (x + w, y + h), (x + w, y + h - line_height), colour, thickness=line_thickness_h)
     
     if show_labels:
         show_label(img=img,

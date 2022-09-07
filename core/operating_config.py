@@ -14,7 +14,7 @@ class operatingConfig:
     detection_model: str = field(init=False)
       
     # Default model to load
-    DEFAULT_MODEL: str = yc.MODEL_YOLOV4N_608_352    
+    DEFAULT_MODEL: str = yc.MODEL_YOLOV4N_800_448    
     modelNet: ModelNet = field(init=False)
     
     #Configs for changing video while running

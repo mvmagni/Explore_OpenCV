@@ -18,11 +18,13 @@ MODEL_YOLOV4N_416_256='MODEL_YOLOV4N_416_256'
 MODEL_YOLOV4N_576_352='MODEL_YOLOV4N_576_352'
 MODEL_YOLOV4N_608_352='MODEL_YOLOV4N_608_352'
 MODEL_YOLOV4N_800_448='MODEL_YOLOV4N_800_448'
+MODEL_YOLOV4N_1248_704='MODEL_YOLOV4N_1248_704'
 
 MODEL_YOLOV4T_320_192='MODEL_YOLOV4T_320_192'
 MODEL_YOLOV4T_416_256='MODEL_YOLOV4T_416_256'
 MODEL_YOLOV4T_576_352='MODEL_YOLOV4T_576_352'
 MODEL_YOLOV4T_608_352='MODEL_YOLOV4T_608_352'
+MODEL_YOLOV4T_1248_704='MODEL_YOLOV4T_1248_704'
 
 MODEL_LIST = ['MODEL_YOLOV3_320_320',
               'MODEL_YOLOV3_320_192',
@@ -40,11 +42,14 @@ MODEL_LIST = ['MODEL_YOLOV3_320_320',
               'MODEL_YOLOV4N_576_352',
               'MODEL_YOLOV4N_608_352',
               'MODEL_YOLOV4N_800_448',
+              'MODEL_YOLOV4N_1248_704',
 
               'MODEL_YOLOV4T_320_192',
               'MODEL_YOLOV4T_416_256',
               'MODEL_YOLOV4T_576_352',
-              'MODEL_YOLOV4T_608_352']
+              'MODEL_YOLOV4T_608_352',
+              'MODEL_YOLOV4T_1248_704'
+              ]
 
 def get_model_config(config_dir, model_type):
     
@@ -73,11 +78,13 @@ def get_model_config(config_dir, model_type):
     CFG_YOLOV4N_576_352='yolov4_new_576_352.cfg'
     CFG_YOLOV4N_608_352='yolov4_new_608_352.cfg'
     CFG_YOLOV4N_800_448='yolov4_new_800_448.cfg'
+    CFG_YOLOV4N_1248_704='yolov4_new_1248_704.cfg'
 
     CFG_YOLOV4T_320_192='yolov4-tiny_320_192.cfg'
     CFG_YOLOV4T_416_256='yolov4-tiny_416_256.cfg'
     CFG_YOLOV4T_576_352='yolov4-tiny_576_352.cfg'
     CFG_YOLOV4T_608_352='yolov4-tiny_608_352.cfg'
+    CFG_YOLOV4T_1248_704='yolov4-tiny_1248_704.cfg'
     
     
     if model_type == MODEL_YOLOV3_320_320:
@@ -162,7 +169,11 @@ def get_model_config(config_dir, model_type):
         hhT = 448
         modelConfiguration=f'{NET_CONFIG_DIR}/{CFG_YOLOV4N_800_448}'
         modelWeights=f'{NET_CONFIG_DIR}/{WEIGHT_YOLOV4N}'
-
+    elif model_type == MODEL_YOLOV4N_1248_704:
+        whT = 1248
+        hhT = 704
+        modelConfiguration=f'{NET_CONFIG_DIR}/{CFG_YOLOV4N_1248_704}'
+        modelWeights=f'{NET_CONFIG_DIR}/{WEIGHT_YOLOV4N}'
 
     elif model_type == MODEL_YOLOV4T_320_192:
         whT = 320
@@ -187,6 +198,12 @@ def get_model_config(config_dir, model_type):
         hhT = 352
         modelConfiguration=f'{NET_CONFIG_DIR}/{CFG_YOLOV4T_608_352}'
         modelWeights=f'{NET_CONFIG_DIR}/{WEIGHT_YOLOV4T}'
+    elif model_type == MODEL_YOLOV4T_1248_704:
+        whT = 1248
+        hhT = 704
+        modelConfiguration=f'{NET_CONFIG_DIR}/{CFG_YOLOV4T_1248_704}'
+        modelWeights=f'{NET_CONFIG_DIR}/{WEIGHT_YOLOV4T}'
+
 
     print(f'Returning modelConfiguration: {modelConfiguration}')
     print(f'Returning modelWeights:       {modelWeights}')

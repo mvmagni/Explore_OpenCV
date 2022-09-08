@@ -18,10 +18,14 @@ class operatingConfig:
     modelNet: ModelNet = field(init=False)
     
     #Configs for changing video while running
-    SHOW_FPS: bool = True
-    SHOW_DETECT: bool = True
-    SHOW_DETECT_LABELS: bool = True
-    SHOW_MODEL_CONFIG: bool = True
+    SHOW_FPS: bool = False
+    SHOW_DETECT: bool = False
+    SHOW_DETECT_LABELS: bool = False
+    SHOW_RUNTIME_CONFIG: bool = False
+    
+    # How many frames to show Model info on activate/switch
+    # Default increment amount to show on change
+    SHOW_RUNTIME_CONFIG_FRAME_INCREMENT: int = 90
     
     # Whether the program should RUN or not
     RUN_PROGRAM: bool = True
@@ -37,9 +41,10 @@ class operatingConfig:
     prev_frame_time: int = 0
     frame_counter: int = 0
     
-    # How many frames to show Model info on activate/switch
-    SHOW_MODEL_DETAILS: bool = True
-    SHOW_MODEL_DETAILS_FPS: int = 90
+    # Runtime value based on frame_counter, start@90
+    # when switching values adds SHOW_RUNTIME_CONFIG_FRAME_INCREMENT to framecounter
+    # into the variable below
+    show_runtime_config_until_frame: int = 90 
     
     # Confidence threshold adjustment amount used in interface
     CONFIDENCE_THRESHOLD=0.6
@@ -54,6 +59,9 @@ class operatingConfig:
         self.detection_model = self.DEFAULT_MODEL
         self.create_modelNet()
         self.print_environment()
+
+    def increment_show_info_counter(self):
+        self.show_runtime_config_until_frame = (self.frame_counter + self.SHOW_RUNTIME_CONFIG_FRAME_INCREMENT)
 
     def print_environment(self):
         print(f'OpenCV Version: {cv.__version__}')

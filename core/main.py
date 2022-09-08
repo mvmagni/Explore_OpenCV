@@ -2,10 +2,13 @@ import cv2 as cv
 import numpy as np
 import os
 import utils
+import time
 import yolo_config as yc
 from statistics import mean
 from operating_config import operatingConfig
 from model_net import ModelNet
+
+main_window_name='ML Image processing'
 
 # Resource configs
 PROJECT_ROOT_DIR = f'{os.getcwd()}/Explore_OpenCV'
@@ -33,28 +36,38 @@ cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
 cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
 ################################################################################
 
+# Load background image
+bg_img_orig = cv.imread(f'{op_config.resource_dir}/background.jpg')
+
 while op_config.RUN_PROGRAM: 
-    while op_config.CONFIGURE:
-        # Load image
-        bg_img = cv.imread(f'{op_config.resource_dir}/background.jpg')
-        
+    while op_config.CONFIGURE and op_config.RUN_PROGRAM:
+        bg_img = bg_img_orig.copy()
         utils.write_config_screen(img=bg_img,
                                   operating_config=op_config)
-        cv.imshow("OpenCV Test", bg_img)
+        cv.imshow(main_window_name, bg_img)
         
         # Handle input for configuration
         k = cv.waitKey(5)
         utils.handle_config_key_input(img=bg_img,
                                       key=k,
                                       operating_config=op_config)
-
+  
+    load_bg_img = bg_img_orig.copy()
+    utils.write_loading_model(img=load_bg_img,
+                              operating_config=op_config)
+    cv.imshow(main_window_name, load_bg_img)
+    k = cv.waitKey(5)
+    
     # Check to see if current detection model matches the desired model
     if not (op_config.detection_model == op_config.modelNet.model_type):
         op_config.create_modelNet()
     else: 
         print(f'Desired detection model already active')
 
-    while op_config.PROCESS_IMAGES:
+    # Process image
+    op_config.PROCESS_IMAGES = True
+
+    while op_config.PROCESS_IMAGES and op_config.RUN_PROGRAM:
         op_config.frame_counter += 1
         success, frame = cap.read()
 
@@ -65,14 +78,13 @@ while op_config.RUN_PROGRAM:
                             operating_config=op_config)
 
         # Show the image
-        cv.imshow('OpenCV Test',frame)
+        cv.imshow(main_window_name,frame)
 
         # Esc to close, space to write a copy of the image
         k = cv.waitKey(1)
         utils.handle_processing_key_input(img=frame,
                                           key=k,
                                           operating_config=op_config)     
-
 
 # Release the cam link
 cap.release()

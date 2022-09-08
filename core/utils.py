@@ -56,7 +56,16 @@ def show_fps(img, operating_config):
                font, 
                1.0, 
                (100, 255, 0), 
-               1, 
+               2, 
+               cv.LINE_AA)
+        # putting the FPS count on the frame
+    cv.putText(img, 
+               f'Frame: {str(operating_config.frame_counter)}', 
+               (15, 85), 
+               font, 
+               1.0, 
+               (100, 255, 0), 
+               2, 
                cv.LINE_AA)
     
 def write_info_bottom_left(img,
@@ -78,10 +87,11 @@ def process_image(img, operating_config):
     if operating_config.SHOW_FPS:
         show_fps(img=img, operating_config=operating_config)
     
-    if operating_config.SHOW_MODEL_CONFIG:
-        write_info_bottom_left(img=img,
-                               info=operating_config.modelNet.model_type,
-                               operating_config=operating_config)
+    if (operating_config.SHOW_RUNTIME_CONFIG or 
+        operating_config.show_runtime_config_until_frame > operating_config.frame_counter):
+
+        write_config_info(img=img,
+                          operating_config=operating_config)
 
     if operating_config.SHOW_DETECT:
         (class_ids, scores, boxes) = operating_config.modelNet.detect(img)
@@ -97,7 +107,6 @@ def process_image(img, operating_config):
                             class_name=f'{className.title()}',
                             confidence=confidence,
                             show_labels=operating_config.SHOW_DETECT_LABELS)
-            
             
 def show_bounding_box(img, 
                       bbox, 
@@ -166,31 +175,15 @@ def get_class_colour(classID):
     
     return colour
 
-
-def handle_config_key_input(img,
-                            key,
-                            operating_config):
+def handle_general_key_input(img,
+                             key,
+                             operating_config):
     if key%256 == 27:
         # ESC pressed
         print("Escape hit, closing...")
         operating_config.RUN_PROGRAM = False
         operating_config.PROCESS_IMAGES = False
         operating_config.CONFIGURE = False
-        
-    elif key%256 == 103: # letter g, Go and process video
-        print(f'Running process')
-        operating_config.CONFIGURE = False
-        operating_config.PROCESS_IMAGES = True
-    
-    # Model changes - cycle through available
-    elif key%256 == 91: # left square bracket "["
-        # Set previous model as desired one
-        set_desired_model(operating_config, -1)  
-    elif key%256 == 93: # right square bracket "]"
-        # Set next model as desired one
-        set_desired_model(operating_config, 1)
-    
-    # Config changes - can be done in runtime
     elif key%256 == 102: #small f
         operating_config.SHOW_FPS = not operating_config.SHOW_FPS
     elif key%256 == 100: #small d
@@ -198,53 +191,71 @@ def handle_config_key_input(img,
     elif key%256 == 108: # small l (letter L)
         operating_config.SHOW_DETECT_LABELS = not operating_config.SHOW_DETECT_LABELS
     
+    elif key%256 == 105: # small i (letter eye)
+        operating_config.SHOW_RUNTIME_CONFIG = not operating_config.SHOW_RUNTIME_CONFIG
+    
+    # Model changes - cycle through available
+    elif key%256 == 91: # left square bracket "["
+        # Set previous model as desired one
+        set_desired_model(operating_config, -1)
+        operating_config.PROCESS_IMAGES = False  
+    elif key%256 == 93: # right square bracket "]"
+        # Set next model as desired one
+        set_desired_model(operating_config, 1)
+        operating_config.PROCESS_IMAGES = False
+        
     # Increase or decrease confidence threshold
     elif key%256 == 43: # + increase confidence    
         adjust_confidence_threshold(operating_config=operating_config,
                                     adjust_by=operating_config.CONF_THRESHOLD_ADJUSTBY)
+        operating_config.increment_show_info_counter()
     elif key%256 == 45: # - decrease confidence
         adjust_confidence_threshold(operating_config=operating_config,
                                     adjust_by=-operating_config.CONF_THRESHOLD_ADJUSTBY)
-    
+        operating_config.increment_show_info_counter()
     # Increase or decrease confidence threshold
     elif key%256 == 39: # ' increase nms_threshold    
         adjust_nms_threshold(operating_config=operating_config,
                              adjust_by=operating_config.NMS_THRESHOLD_ADJUSTBY)
-        
+        operating_config.increment_show_info_counter()
     elif key%256 == 59: # ; decrease nms_threshold
         adjust_nms_threshold(operating_config=operating_config,
                              adjust_by=-operating_config.NMS_THRESHOLD_ADJUSTBY)
-    
+        operating_config.increment_show_info_counter()
     # Take screenshot
     elif key%256 == 32: # SPACE pressed
         write_progress_image(img=img,
                              operating_config=operating_config
                             )   
+  
 
+def handle_config_key_input(img,
+                            key,
+                            operating_config):
+
+        
+    if key%256 == 103: # letter g, Go and process video
+        print(f'Running process')
+        operating_config.CONFIGURE = False
+    
+    
+    handle_general_key_input(img=img,
+                             key=key,
+                             operating_config=operating_config)
+    
+  
 def handle_processing_key_input(img,
                                 key,
                                 operating_config):
-    if key%256 == 27:
-        # ESC pressed
-        print("Escape hit, closing...")
-        operating_config.RUN_PROGRAM = False
-        operating_config.PROCESS_IMAGES = False
-        operating_config.CONFIGURE = False
-
-    elif key%256 == 99: #small c
+    if key%256 == 99: #small c
         operating_config.PROCESS_IMAGES = False
         operating_config.CONFIGURE = True
-    elif key%256 == 102: #small f
-        operating_config.SHOW_FPS = not operating_config.SHOW_FPS
-    elif key%256 == 100: #small d
-        operating_config.SHOW_DETECT = not operating_config.SHOW_DETECT
-    elif key%256 == 108: # small l (letter L)
-        operating_config.SHOW_DETECT_LABELS = not operating_config.SHOW_DETECT_LABELS
-    elif key%256 == 32:
-        # SPACE pressed
-        write_progress_image(img=img,
-                             operating_config=operating_config
-                            )
+
+    handle_general_key_input(img=img,
+                             key=key,
+                             operating_config=operating_config)
+
+
 
 def adjust_nms_threshold(operating_config,
                          adjust_by):
@@ -305,33 +316,98 @@ def set_desired_model(operating_config,
     operating_config.detection_model=desired_model
     print(f'Desired model: {desired_model}')
 
-def write_row_of_info(img,
-                      info,
-                      rownum,
+def write_config_info(img,
                       operating_config):
+    h, w, c = img.shape
+
     cv.putText(img, 
-               info, 
-               (40, 60 * rownum), 
+               f'NMS threshold: {str(operating_config.modelNet.nms_threshold)}', 
+               (40, h-50), 
                operating_config.font, 
-               1.0, 
+               1, 
                (100, 255, 0), 
                2, 
                cv.LINE_AA)
+
+    cv.putText(img, 
+               f'Confidence threshold: {str(operating_config.modelNet.confidence_threshold)}', 
+               (40, h-90), 
+               operating_config.font, 
+               1, 
+               (100, 255, 0), 
+               2, 
+               cv.LINE_AA)
+
+    cv.putText(img, 
+               f'Model: {operating_config.modelNet.model_type}', 
+               (40, h-130), 
+               operating_config.font, 
+               1, 
+               (100, 255, 0), 
+               2, 
+               cv.LINE_AA)
+
+
+def write_row_of_info(img,
+                      info,
+                      rownum,
+                      operating_config,
+                      draw_line=False):
+    colour = (100, 255, 0)
+    line_width=350
+    line_thickness=2
+    font_thickness=2
+    font_size=0.8
+    if rownum==1:
+        font_size=1
+    cv.putText(img, 
+               info, 
+               (40, 60 + (45 * (rownum-1))), 
+               operating_config.font, 
+               font_size, 
+               colour, 
+               font_thickness, 
+               cv.LINE_AA)
+    
+    
+    if draw_line:
+        cv.line(img, (40, 70 + (45 * (rownum-1))), (40 + line_width, 70 + (45 * (rownum-1))), colour, thickness=line_thickness)
 
 def write_config_screen(img,
                         operating_config):
         
         screen_info=[]
-        screen_info.append(f'Detection model active:  {operating_config.modelNet.model_type}')
-        screen_info.append(f'Detection model desired: {operating_config.detection_model}')
-        screen_info.append(f'Detection on:     {operating_config.SHOW_DETECT}')
-        screen_info.append(f'Object labels on: {operating_config.SHOW_DETECT_LABELS}')
-        screen_info.append(f'FPS display on:   {operating_config.SHOW_FPS}')
-        screen_info.append(f'Confidence Threshold: {operating_config.modelNet.confidence_threshold}')
-        screen_info.append(f'NMS Threshold: {operating_config.modelNet.nms_threshold}')
+        screen_info.append(f'Runtime Configuration')
+        screen_info.append(f'')
+        screen_info.append(f'Detection model:  {operating_config.detection_model} (keys: [ and ])')
+        screen_info.append(f"Confidence Threshold: {operating_config.modelNet.confidence_threshold} (keys: + and -)")
+        screen_info.append(f"NMS Threshold: {operating_config.modelNet.nms_threshold} (keys: ; and \')")
+        screen_info.append(f'')
+        screen_info.append(f'Detection:          {"On" if operating_config.SHOW_DETECT else "Off"} (key: d)')
+        screen_info.append(f'Object labels:      {"On" if operating_config.SHOW_DETECT_LABELS else "Off"} (key: l)')
+        screen_info.append(f'Show FPS/frames: {"On" if operating_config.SHOW_FPS else "Off"} (key: f)')
+        screen_info.append(f'Display runtime:    {"On" if operating_config.SHOW_RUNTIME_CONFIG else "Off"} (key: i)')
         
         for i in range(1,len(screen_info)+1):
+            draw_line=False
+            if i == 1:
+                draw_line=True
+            
             write_row_of_info(img=img,
                               info=screen_info[i-1],
                               rownum=i,
-                              operating_config=operating_config)
+                              operating_config=operating_config,
+                              draw_line=draw_line)
+
+def write_loading_model(img,
+                        operating_config):
+    h, w, c = img.shape
+
+    cv.putText(img, 
+               f'Initializing model: {str(operating_config.detection_model)}', 
+               (300, int(h/2)-25), 
+               operating_config.font, 
+               1, 
+               (100, 255, 0), 
+               2, 
+               cv.LINE_AA) 

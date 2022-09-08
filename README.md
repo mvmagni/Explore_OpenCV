@@ -32,6 +32,9 @@
 ## About The Project
 <p>
 This project is to setup and explore the functionality of OpenCV. Design goals are to explore functionality to create a visual interface as an assistive interface for those with ASD.  
+<br />
+Latest video on <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8"> youtube </a>
+</p>
 
 ### Supportive features include:
 - [x] Runtime framework
@@ -72,7 +75,9 @@ This project is to setup and explore the functionality of OpenCV. Design goals a
     <h2 align="center">System runtime</h2>
     </p>
 </div>
+
   
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 

@@ -21,7 +21,7 @@ def write_progress_image(img,
     image_show.show()
     
 def show_fps(img, operating_config):
-    queue_length=90
+    queue_length=60
     
     if operating_config.fps_queue is None:
         operating_config.fps_queue = []

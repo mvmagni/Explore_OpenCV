@@ -47,7 +47,7 @@ while op_config.RUN_PROGRAM:
         cv.imshow(main_window_name, bg_img)
         
         # Handle input for configuration
-        k = cv.waitKey(5)
+        k = cv.waitKey(0)
         utils.handle_config_key_input(img=bg_img,
                                       key=k,
                                       operating_config=op_config)
@@ -56,7 +56,7 @@ while op_config.RUN_PROGRAM:
     utils.write_loading_model(img=load_bg_img,
                               operating_config=op_config)
     cv.imshow(main_window_name, load_bg_img)
-    k = cv.waitKey(5)
+    k = cv.waitKey(1)
     
     # Check to see if current detection model matches the desired model
     if not (op_config.detection_model == op_config.modelNet.model_type):

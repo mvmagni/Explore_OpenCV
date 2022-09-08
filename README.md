@@ -17,7 +17,7 @@
 
 <!-- PROJECT LOGO -->
 <div align="center">
-  <a href="https://github.com/mvmagni/magritte">
+  <a href="https://github.com/mvmagni/Explore_OpenCV">
     <img src="resources/HUD.jpg" alt="Logo" width="600" height="300"/>
   </a>
     <p>
@@ -35,6 +35,11 @@ This project is to setup and explore the functionality of OpenCV. Design goals a
 <br />
 Latest video on <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8"> youtube </a>
 </p>
+
+<!-- ABOUT THE PROJECT -->
+## Video Showcase
+  * <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8">Interface and feature walkthrough </a>
+  * <a href="https://www.youtube.com/watch?v=jM8fBSXOj1w">20 Model performance comparison</a>
 
 ### Supportive features include:
 - [x] Runtime framework
@@ -59,7 +64,7 @@ Latest video on <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8"> youtube <
 
 ## Latest screenshots
 <div align="center">
-  <a href="https://github.com/mvmagni/magritte">
+  <a href="https://github.com/mvmagni/Explore_OpenCV">
     <img src="resources/config_latest.jpg" alt="Logo" width="600" height="300"/>
   </a>
     <p>
@@ -68,7 +73,7 @@ Latest video on <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8"> youtube <
 </div>
 
 <div align="center">
-  <a href="https://github.com/mvmagni/magritte">
+  <a href="https://github.com/mvmagni/Explore_OpenCV">
     <img src="resources/runtime_latest.jpg" alt="Logo" width="600" height="300"/>
   </a>
     <p>
@@ -106,23 +111,24 @@ Distributed under the GPLv3 License. See `LICENSE.md` for more information.
 
 ## Contact
 
-Twitter - [@Ghost_in_the_NN](https://twitter.com/Ghost_in_the_NN)
+Twitter - [@Ghost_in_the_NN](https://twitter.com/Ghost_in_the_NN)<br />
+YouTube - [Ghostin the NN](https://www.youtube.com/channel/UC0pcRug_r2H-77KXhsImArw)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/mvmagni/magritte.svg?style=for-the-badge
-[contributors-url]: https://github.com/mvmagni/magritte/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/mvmagni/magritte.svg?style=for-the-badge
-[forks-url]: https://github.com/mvmagni/magritte/network/members
-[stars-shield]: https://img.shields.io/github/stars/mvmagni/magritte.svg?style=for-the-badge
-[stars-url]: https://github.com/mvmagni/magritte/stargazers
-[issues-shield]: https://img.shields.io/github/issues/mvmagni/magritte.svg?style=for-the-badge
-[issues-url]: https://github.com/mvmagni/magritte/issues
-[license-shield]: https://img.shields.io/github/license/mvmagni/magritte.svg?style=for-the-badge
-[license-url]: https://github.com/mvmagni/magritte/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/mvmagni/Explore_OpenCV.svg?style=for-the-badge
+[contributors-url]: https://github.com/mvmagni/Explore_OpenCV/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/mvmagni/Explore_OpenCV.svg?style=for-the-badge
+[forks-url]: https://github.com/mvmagni/Explore_OpenCV/network/members
+[stars-shield]: https://img.shields.io/github/stars/mvmagni/Explore_OpenCV.svg?style=for-the-badge
+[stars-url]: https://github.com/mvmagni/Explore_OpenCV/stargazers
+[issues-shield]: https://img.shields.io/github/issues/mvmagni/Explore_OpenCV.svg?style=for-the-badge
+[issues-url]: https://github.com/mvmagni/Explore_OpenCV/issues
+[license-shield]: https://img.shields.io/github/license/mvmagni/Explore_OpenCV.svg?style=for-the-badge
+[license-url]: https://github.com/mvmagni/Explore_OpenCV/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/othneildrew
 

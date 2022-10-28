@@ -29,11 +29,20 @@ op_config = operatingConfig(image_store_dir=image_store_dir,
 # Config video capture. 0 is first
 # Added cv.CAP_DSHOW to avoid several minute lag of opening cam on windows
 # No lag opening on Linux
-#cap = cv.VideoCapture(0,cv.CAP_DSHOW)
-cap = cv.VideoCapture(SAMPLE_VIDEO)
+
+# Webcam
+cap = cv.VideoCapture(0,cv.CAP_DSHOW)
+
+# Video file defined above
+#cap = cv.VideoCapture(SAMPLE_VIDEO)
+
+# Jarvis rtsp stream
+#gst = 'rtspsrc location=rtsp://172.20.0.30:8554/unicast latency=10 ! decodebin ! videoconvert ! video/x-raw,format=BGR ! appsink drop=1'
+#cap = cv.VideoCapture(gst,cv.CAP_GSTREAMER)
+
 fps = cap.get(cv.CAP_PROP_FPS)
-cap.set(cv.CAP_PROP_FRAME_WIDTH,960)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT,540)
+cap.set(cv.CAP_PROP_FRAME_WIDTH,1600)
+cap.set(cv.CAP_PROP_FRAME_HEIGHT,900)
 ################################################################################
 
 # Load background image
@@ -74,11 +83,11 @@ while op_config.RUN_PROGRAM:
         if op_config.frame_counter == 1:
             print(f'Image size: {frame.shape}')
 
-        utils.process_image(img=frame,
-                            operating_config=op_config)
+        processed_frame = utils.process_image(img=frame,
+                                              operating_config=op_config)
 
         # Show the image
-        cv.imshow(main_window_name,frame)
+        cv.imshow(main_window_name,processed_frame)
 
         # Esc to close, space to write a copy of the image
         k = cv.waitKey(1)

@@ -90,8 +90,8 @@ def process_image(img, operating_config):
     if (operating_config.SHOW_RUNTIME_CONFIG or 
         operating_config.show_runtime_config_until_frame > operating_config.frame_counter):
 
-        write_config_info(img=img,
-                          operating_config=operating_config)
+        img = write_config_info(img=img,
+                                operating_config=operating_config)
 
     if operating_config.SHOW_DETECT:
         (class_ids, scores, boxes) = operating_config.modelNet.detect(img)
@@ -101,12 +101,13 @@ def process_image(img, operating_config):
             className = operating_config.modelNet.classes[class_ids[idx]]
             confidence = scores[idx]
             
-            show_bounding_box(img=img, 
-                            bbox=box,
-                            classID=class_ids[idx],
-                            class_name=f'{className.title()}',
-                            confidence=confidence,
-                            show_labels=operating_config.SHOW_DETECT_LABELS)
+            img = show_bounding_box(img=img, 
+                                    bbox=box,
+                                    classID=class_ids[idx],
+                                    class_name=f'{className.title()}',
+                                    confidence=confidence,
+                                    show_labels=operating_config.SHOW_DETECT_LABELS)
+    return img
             
 def show_bounding_box(img, 
                       bbox, 
@@ -142,13 +143,16 @@ def show_bounding_box(img,
     cv.line(img, (x + w, y + h), (x + w - line_width, y + h), colour, thickness=line_thickness_w)
     cv.line(img, (x + w, y + h), (x + w, y + h - line_height), colour, thickness=line_thickness_h)
     
+    
     if show_labels:
         show_label(img=img,
                    x=x,
                    y=y,
                    class_name=class_name,
                    confidence=confidence,
-                   colour=colour)
+                   colour=colour)    
+    
+    return img
     
 def show_label(img, 
                x,
@@ -164,6 +168,7 @@ def show_label(img,
                colour,
                2
                )
+    return img
 
 def get_class_colour(classID):
     if classID == 0: # person
@@ -346,6 +351,7 @@ def write_config_info(img,
                (100, 255, 0), 
                2, 
                cv.LINE_AA)
+    return img
 
 
 def write_row_of_info(img,
@@ -372,32 +378,36 @@ def write_row_of_info(img,
     
     if draw_line:
         cv.line(img, (40, 70 + (45 * (rownum-1))), (40 + line_width, 70 + (45 * (rownum-1))), colour, thickness=line_thickness)
+    
+    return img
 
 def write_config_screen(img,
                         operating_config):
         
-        screen_info=[]
-        screen_info.append(f'Runtime Configuration')
-        screen_info.append(f'')
-        screen_info.append(f'Detection model:  {operating_config.detection_model} (keys: [ and ])')
-        screen_info.append(f"Confidence Threshold: {operating_config.modelNet.confidence_threshold} (keys: + and -)")
-        screen_info.append(f"NMS Threshold: {operating_config.modelNet.nms_threshold} (keys: ; and \')")
-        screen_info.append(f'')
-        screen_info.append(f'Detection:          {"On" if operating_config.SHOW_DETECT else "Off"} (key: d)')
-        screen_info.append(f'Object labels:      {"On" if operating_config.SHOW_DETECT_LABELS else "Off"} (key: l)')
-        screen_info.append(f'Show FPS/frames: {"On" if operating_config.SHOW_FPS else "Off"} (key: f)')
-        screen_info.append(f'Display runtime:    {"On" if operating_config.SHOW_RUNTIME_CONFIG else "Off"} (key: i)')
+    screen_info=[]
+    screen_info.append(f'Runtime Configuration')
+    screen_info.append(f'')
+    screen_info.append(f'Detection model:  {operating_config.detection_model} (keys: [ and ])')
+    screen_info.append(f"Confidence Threshold: {operating_config.modelNet.confidence_threshold} (keys: + and -)")
+    screen_info.append(f"NMS Threshold: {operating_config.modelNet.nms_threshold} (keys: ; and \')")
+    screen_info.append(f'')
+    screen_info.append(f'Detection:          {"On" if operating_config.SHOW_DETECT else "Off"} (key: d)')
+    screen_info.append(f'Object labels:      {"On" if operating_config.SHOW_DETECT_LABELS else "Off"} (key: l)')
+    screen_info.append(f'Show FPS/frames: {"On" if operating_config.SHOW_FPS else "Off"} (key: f)')
+    screen_info.append(f'Display runtime:    {"On" if operating_config.SHOW_RUNTIME_CONFIG else "Off"} (key: i)')
+    
+    for i in range(1,len(screen_info)+1):
+        draw_line=False
+        if i == 1:
+            draw_line=True
         
-        for i in range(1,len(screen_info)+1):
-            draw_line=False
-            if i == 1:
-                draw_line=True
-            
-            write_row_of_info(img=img,
-                              info=screen_info[i-1],
-                              rownum=i,
-                              operating_config=operating_config,
-                              draw_line=draw_line)
+        img = write_row_of_info(img=img,
+                                info=screen_info[i-1],
+                                rownum=i,
+                                operating_config=operating_config,
+                                draw_line=draw_line)
+
+    return img
 
 def write_loading_model(img,
                         operating_config):
@@ -411,3 +421,4 @@ def write_loading_model(img,
                (100, 255, 0), 
                2, 
                cv.LINE_AA) 
+    return img

@@ -17,9 +17,11 @@
 
 <!-- PROJECT LOGO -->
 <div align="center">
-  <a href="https://github.com/mvmagni/Explore_OpenCV">
+<!--
+   <a href="https://github.com/mvmagni/Explore_OpenCV">
     <img src="resources/HUD.jpg" alt="Logo" width="600" height="300"/>
-  </a>
+   </a>
+-->
     <p>
     <h2 align="center">ML Image/Video Processing</h2>
     </p>
@@ -31,7 +33,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 <p>
-This project is to setup and explore the functionality of OpenCV. Design goals are to explore functionality to create a visual interface as an assistive interface for those with ASD.  
+This project is to setup and explore the functionality of OpenCV. Design goals are to explore functionality to create a visual interface as an assistive interface for those with ASD.Initial inclusion of object detection via YoloV3/4/5, migrated to using mediapipe and including hand detection, facial mesh, contour, and others. 
+
+Initial framework for image processing and exploration completed 15-Dec-2022. Initial included runtime configuration changes, processing framework via local video, webcam, or RTSP feed. Application design and integration now beginning under Radar github repo.
+
 <br />
 Latest video on <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8"> youtube </a>
 </p>
@@ -48,15 +53,8 @@ Latest video on <a href="https://www.youtube.com/watch?v=RYjIu8qhYG8"> youtube <
 - [x] Online parameter changes
 - [x] Object isolation/detection
 - [x] Object recognition
-- [ ] Object tracking
-- [ ] Contour detection
-- [ ] Facial recognition
-- [ ] Emotion recognition
-- [ ] Facial/Object capture (archival)
-- [ ] Kalman filter for motion prediction
-- [ ] Audible prompts for assistance on text displays
-- [ ] Inclusion of NLP support and online data mining via <a href="github.com/mvmagni/magritte"> github.com/mvmagni/magritte </a>
-- [ ] Home automation integration (speech to text with call to IOT API's)
+- [x] Object tracking
+- [x] Contour detection
 </p>  
   
 <p align="right">(<a href="#top">back to top</a>)</p>

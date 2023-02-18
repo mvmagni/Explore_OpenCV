@@ -1,7 +1,7 @@
 import cv2
 from HandTrackingModule import HandDetector
 import numpy as np
-cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
 
 cap.set(cv2.CAP_PROP_FRAME_WIDTH,1600)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT,900)

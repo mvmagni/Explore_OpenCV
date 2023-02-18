@@ -20,7 +20,7 @@ class operatingConfig:
     #Configs for changing video while running
     SHOW_FPS: bool = False
     SHOW_DETECT: bool = False
-    SHOW_DETECT_LABELS: bool = False
+    SHOW_LABELS: bool = False
     SHOW_RUNTIME_CONFIG: bool = False
     
     # How many frames to show Model info on activate/switch

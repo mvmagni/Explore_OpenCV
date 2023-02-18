@@ -106,7 +106,7 @@ def process_image(img, operating_config):
                                     classID=class_ids[idx],
                                     class_name=f'{className.title()}',
                                     confidence=confidence,
-                                    show_labels=operating_config.SHOW_DETECT_LABELS)
+                                    show_labels=operating_config.SHOW_LABELS)
     return img
             
 def show_bounding_box(img, 
@@ -194,7 +194,7 @@ def handle_general_key_input(img,
     elif key%256 == 100: #small d
         operating_config.SHOW_DETECT = not operating_config.SHOW_DETECT
     elif key%256 == 108: # small l (letter L)
-        operating_config.SHOW_DETECT_LABELS = not operating_config.SHOW_DETECT_LABELS
+        operating_config.SHOW_LABELS = not operating_config.SHOW_LABELS
     
     elif key%256 == 105: # small i (letter eye)
         operating_config.SHOW_RUNTIME_CONFIG = not operating_config.SHOW_RUNTIME_CONFIG
@@ -392,7 +392,7 @@ def write_config_screen(img,
     screen_info.append(f"NMS Threshold: {operating_config.modelNet.nms_threshold} (keys: ; and \')")
     screen_info.append(f'')
     screen_info.append(f'Detection:          {"On" if operating_config.SHOW_DETECT else "Off"} (key: d)')
-    screen_info.append(f'Object labels:      {"On" if operating_config.SHOW_DETECT_LABELS else "Off"} (key: l)')
+    screen_info.append(f'Object labels:      {"On" if operating_config.SHOW_LABELS else "Off"} (key: l)')
     screen_info.append(f'Show FPS/frames: {"On" if operating_config.SHOW_FPS else "Off"} (key: f)')
     screen_info.append(f'Display runtime:    {"On" if operating_config.SHOW_RUNTIME_CONFIG else "Off"} (key: i)')
     
